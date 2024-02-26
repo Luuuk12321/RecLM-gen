@@ -1,23 +1,21 @@
-import copy
 import random
 
-import numpy as np
-import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
 
 from SFT.SFT_templates import *
-from utils.utils import *
+from Utils.Utils import *
 
 
 class SFTDataset(Dataset):
-    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train'):
+    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False):
         self.args = args
         self.task_template = task_template
         self.task_num = task_num
         self.mode = mode
         self.tokenizer = tokenizer
         self.teacher_port = self.args.teacher_port
+        self.saving = saving
 
         self.category2item = data['category']
         self.metas = data['metas']
@@ -48,12 +46,7 @@ class SFTDataset(Dataset):
             self.title2item[self.metas[_][self.args.item_index]].append(_)
 
         self.datum_info = []
-        self.complete_datum_info_path = None
-        if self.mode == 'val':      # todo: data augmentation and save file
-            self.complete_datum_info_path = args.data_path + f'SFT_datum_info_{self.mode}_{self.args.SFT_val_tasks}{"_LCT" if self.args.llama2_chat_template else ""}_Top{self.args.topk}.pickle'
-        # if self.mode == 'test':
-        #     self.complete_datum_info_path = args.data_path + f'SFT_datum_info_{self.mode}_{self.args.SFT_test_task}{"_LCT" if self.args.llama2_chat_template else ""}_Top{self.args.topk}.pickle'
-        self.complete_datum_info = load_pickle(self.complete_datum_info_path) or []
+        self.complete_datum_info = []
         self.compute_datum_info()
 
     def find_maximum_category(self, item_list, target_item):
@@ -67,13 +60,13 @@ class SFTDataset(Dataset):
         return category
 
     def compute_datum_info(self):
-        val_num = 320
+        val_num = self.args.val_num_per_task
         val_task_num = 0
         for task, num in self.task_num.items():
             if task in ["SFTSeqRec", "SFTPersonalControlRec", "SFTPersonalCategoryRate", "SFTSeqRecPALR"]:
                 for _ in range(num):
                     self.datum_info += [[task, u] for u in self.sequential]
-            elif task in ["SFTControlRec", "SFTControlRec1"]:
+            elif task in ["SFTControlRec", "SFTControlRec_re"]:
                 for _ in range(num):
                     self.datum_info += [[task, i] for i in self.metas if self.item2category.get(i)]
             elif task == "SFTCategoryRate":
@@ -98,15 +91,21 @@ class SFTDataset(Dataset):
             else:
                 raise NotImplementedError
 
-        if len(self.complete_datum_info) != len(self.datum_info) and self.mode in ['val', 'test']:
+        complete_datum_info_path = None
+        if self.mode == 'val':
+            complete_datum_info_path = self.args.data_path + f'SFT_datum_info_{self.mode}_{self.args.SFT_val_tasks}{"_LCT" if self.args.llama2_chat_template else ""}_Top{self.args.topk}.pickle'
+        if self.mode == 'train':
+            complete_datum_info_path = self.args.data_path + f'SFT_datum_info_{self.mode}_{self.args.SFT_train_tasks}{"_LCT" if self.args.llama2_chat_template else ""}_Top{self.args.topk}.pickle'
+
+        if self.saving:
             self.complete_datum_info = []
             for idx in tqdm(range(len(self.complete_datum_info), len(self.datum_info)), desc=f'computing {self.mode} datum info'):
                 self.complete_datum_info.append(self.getitem(idx))
-            if self.mode in ['val']:
-                token_length = [len(_['input_text'].split()) for _ in self.complete_datum_info]
-                datum_info_index = np.argsort(token_length)
-                self.complete_datum_info = [self.complete_datum_info[idx] for idx in datum_info_index][::-1]
-                save_pickle(self.complete_datum_info, self.complete_datum_info_path)
+            save_pickle(self.complete_datum_info, complete_datum_info_path)
+        else:
+            self.complete_datum_info = load_pickle(complete_datum_info_path) or []
+            if len(self.complete_datum_info) != len(self.datum_info):
+                self.complete_datum_info = []
 
     def __len__(self):
         return len(self.datum_info)
@@ -146,11 +145,11 @@ class SFTDataset(Dataset):
     def get_output_item_list(self, task, user=None, sub_sequential=None, target_item=None, target_category=None, direction=None, item_count=None, category_item_count=None, has_candidate=False):
         output_items, candidate_items = [], []
         if task in ['SFTSeqRec']:
-            output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)['inference'][0]
+            output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
             if target_item in output_items:
                 output_items.remove(target_item)
             output_items = ([target_item] + output_items)[:item_count]
-        elif task in ["SFTControlRec", "SFTControlRec1"]:
+        elif task in ["SFTControlRec", "SFTControlRec_re"]:
             if direction == '+':
                 output_items = copy.deepcopy(self.category2item[target_category])
             else:
@@ -161,7 +160,7 @@ class SFTDataset(Dataset):
             output_items = ([target_item] + output_items)[:item_count]
         elif task in ["SFTPersonalControlRec"]:
             output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count,
-                                         target_category=[direction+target_category], port=self.teacher_port)['inference'][0]
+                                         target_category=[direction+target_category], port=self.teacher_port)
             if target_item in output_items:
                 output_items.remove(target_item)
                 output_items = ([target_item] + output_items)
@@ -172,9 +171,9 @@ class SFTDataset(Dataset):
             random.shuffle(output_items)
         elif task in ['SFTPersonalCategoryRate']:
             in_category_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], category_item_count,
-                                              target_category=['+'+target_category], port=self.teacher_port)['inference'][0]
+                                              target_category=['+'+target_category], port=self.teacher_port)
             out_category_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count-category_item_count,
-                                               target_category=['-'+target_category], port=self.teacher_port)['inference'][0]
+                                               target_category=['-'+target_category], port=self.teacher_port)
             output_items = in_category_items + out_category_items
             random.shuffle(output_items)
         else:
@@ -277,7 +276,7 @@ class SFTDataset(Dataset):
                     max_count = min(self.args.topk, len(self.category2item[target_category]))
                 else:
                     intention_group, d = Intention_minus_group, '-'
-                    SASRec_output = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)['inference'][0]
+                    SASRec_output = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
                     target_category = random.choice(self.find_maximum_category(SASRec_output, target_item))
                     max_count = min(self.args.topk, len(self.metas) - len(self.category2item[target_category]))
                 item_count = random.choice(range(max_count))+1 if task == "SFTPersonalControlRec" else 1
@@ -302,7 +301,7 @@ class SFTDataset(Dataset):
                     SeqRec_item_list = self.SFTTestSeqRec_Result[user]
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in SeqRec_item_list]
                 else:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)['inference'][0]
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
                 if task == "SFT+TestPersonalControlRec":
                     target_category = self.item2category.get(target_item)[-1]
                     intention_group = Intention_plus_group
@@ -348,10 +347,9 @@ class SFTDataset(Dataset):
 
             elif task.startswith("SFTTestPersonalCategoryRate"):
                 if self.mode == 'test':
-                    SeqRec_item_list = self.SFTTestSeqRec_Result[user]
-                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in SeqRec_item_list]
+                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.SFTTestSeqRec_Result[user]]
                 else:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)['inference'][0]
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
                 if 'LP1' in task or 'LP' in task:
                     target_category = self.find_maximum_category(item_list, target_item)[-1]
                 else:
@@ -370,7 +368,7 @@ class SFTDataset(Dataset):
                     'item_list': get_output_text([self.get_item_index(target_item)])
                 })
 
-        elif task in ["SFTControlRec", "SFTControlRec1"]:
+        elif task in ["SFTControlRec", "SFTControlRec_re"]:
             target_item = self.datum_info[idx][1]
             if 'reverse' in template_id:
                 input_field_data.update({
@@ -476,9 +474,9 @@ class SFTDataset(Dataset):
         return out_dict
 
     def __getitem__(self, idx):
-        if self.mode in ['train']:
-            return self.getitem(idx)
-        return self.complete_datum_info[idx]
+        if len(self.complete_datum_info) > 0:
+            return self.complete_datum_info[idx]
+        return self.getitem(idx)
 
     def collate_fn(self, batch):
         batch_entry = {}
@@ -534,7 +532,7 @@ Train_task_group_mapping = {
     "SFTSeqRec": SeqRec_group,
     "SFTSeqRecPALR": SeqRec_group,
     "SFTControlRec": ControlRec_group,
-    "SFTControlRec1": ControlRec1_group,
+    "SFTControlRec_re": ControlRec_re_group,
     "SFTPersonalControlRec": PersonalControlRec_group,
     "SFTCategoryRate": CategoryRate_group,
     "SFTPersonalCategoryRate": PersonalCategoryRate_group,
@@ -544,11 +542,12 @@ Train_task_group_mapping = {
 Val_task_group_mapping = {
     "SFTTestSeqRec": ValSeqRec_group,
     "SFTTestSeqRanking": ValSeqRanking_group,
-    # "SFTValControlRec": ValControlRec_group,
-    # "SFTValPersonalControlRec": ValPersonalControlRec_group,
     "SFT+TestPersonalControlRec": ValPersonalControlRec_group,
     "SFT-TestPersonalControlRec": ValPersonalControlRec_group,
+    "SFTTestPersonalCategoryRateLP": TestPersonalCategoryRateLP_group,
     "SFTTestPersonalCategoryRateLP1": TestPersonalCategoryRateLP1_group,
+    "SFTTestPersonalCategoryRateMP": TestPersonalCategoryRateMP_group,
+    "SFTTestPersonalCategoryRateEP": TestPersonalCategoryRateEP_group,
     'SFTTestItemCount': ValSeqRec_group,
 }
 

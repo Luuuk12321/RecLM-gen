@@ -125,7 +125,7 @@ template = {
 ControlRec_group[f"{ControlRec_task_key}-{len(ControlRec_group)}"] = SFTTemplate(**template)
 
 
-ControlRec1_group = {}
+ControlRec_re_group = {}
 
 template = {
     'sys': "You are an expert recommender engine. ",
@@ -136,9 +136,9 @@ template = {
     'output': "{item_list}",
     'input_fields': ['synthetic_intention', 'item_count'],
     'output_fields': ['item_list'],
-    'template_id': f"{ControlRec_task_key}-{len(ControlRec1_group)}",
+    'template_id': f"{ControlRec_task_key}-{len(ControlRec_re_group)}",
 }
-ControlRec1_group[f"{ControlRec_task_key}-{len(ControlRec1_group)}"] = SFTTemplate(**template)
+ControlRec_re_group[f"{ControlRec_task_key}-{len(ControlRec_re_group)}"] = SFTTemplate(**template)
 
 template = {
     'sys': "You are an expert recommender engine. ",
@@ -150,9 +150,9 @@ template = {
     'output': "{item_list}",
     'input_fields': ['synthetic_intention', 'item_count', 'candidate_titles'],
     'output_fields': ['item_list'],
-    'template_id': f"{ControlRec_task_key}-{len(ControlRec1_group)}",
+    'template_id': f"{ControlRec_task_key}-{len(ControlRec_re_group)}",
 }
-ControlRec1_group[f"{ControlRec_task_key}-{len(ControlRec1_group)}"] = SFTTemplate(**template)
+ControlRec_re_group[f"{ControlRec_task_key}-{len(ControlRec_re_group)}"] = SFTTemplate(**template)
 
 template = {
     'sys': "You are an expert recommender engine. ",
@@ -162,9 +162,9 @@ template = {
     'output': "The category of \"{item}\" is \"{target_category}\".",
     'input_fields': ['item'],
     'output_fields': ['item', 'target_category'],
-    'template_id': f"{ControlRec_task_key}-{len(ControlRec1_group)}",
+    'template_id': f"{ControlRec_task_key}-{len(ControlRec_re_group)}",
 }
-ControlRec1_group[f"{ControlRec_task_key}-reverse"] = SFTTemplate(**template)
+ControlRec_re_group[f"{ControlRec_task_key}-reverse"] = SFTTemplate(**template)
 
 ################################################################################################################
 #                                                                                                              #
