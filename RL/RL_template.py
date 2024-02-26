@@ -1,10 +1,7 @@
-import copy
-import random
-
 from fastchat.model import get_conversation_template
 
 
-class RLHFTemplate:
+class RLTemplate:
     def __init__(self, sys: str, first_turn: list[str], inst: str, output: str, input_fields, output_fields, template_id):
         self.sys = sys
         self.first_turn = first_turn
@@ -74,7 +71,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{SeqRec_task_key}-{len(SeqRec_group)}",
 }
-SeqRec_group[f"{SeqRec_task_key}-{len(SeqRec_group)}"] = RLHFTemplate(**template)
+SeqRec_group[f"{SeqRec_task_key}-{len(SeqRec_group)}"] = RLTemplate(**template)
 
 
 ################################################################################################################
@@ -97,7 +94,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{SeqRanking_task_key}-{len(SeqRanking_group)}",
 }
-SeqRanking_group[f"{SeqRanking_task_key}-{len(SeqRanking_group)}"] = RLHFTemplate(**template)
+SeqRanking_group[f"{SeqRanking_task_key}-{len(SeqRanking_group)}"] = RLTemplate(**template)
 
 
 ################################################################################################################
@@ -121,7 +118,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalControlRec_task_key}-{len(PersonalControlRec_group)}",
 }
-PersonalControlRec_group[f"{PersonalControlRec_task_key}-{len(PersonalControlRec_group)}"] = RLHFTemplate(**template)
+PersonalControlRec_group[f"{PersonalControlRec_task_key}-{len(PersonalControlRec_group)}"] = RLTemplate(**template)
 
 
 ################################################################################################################
@@ -141,7 +138,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -152,7 +149,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -163,7 +160,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -174,7 +171,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -185,7 +182,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -196,7 +193,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionPlus-{len(Intention_plus_group)}",
 }
-Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLHFTemplate(**template)
+Intention_plus_group[f"IntentionPlus-{len(Intention_plus_group)}"] = RLTemplate(**template)
 
 
 ################################################################################################################
@@ -216,7 +213,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -227,7 +224,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -238,7 +235,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -249,7 +246,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -260,7 +257,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 template = {
     'sys': '',
@@ -271,7 +268,7 @@ template = {
     'output_fields': [],
     'template_id': f"IntentionMinus-{len(Intention_minus_group)}",
 }
-Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLHFTemplate(**template)
+Intention_minus_group[f"IntentionMinus-{len(Intention_minus_group)}"] = RLTemplate(**template)
 
 
 ################################################################################################################
@@ -295,7 +292,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalCategoryRate_task_key}-LP",
 }
-PersonalCategoryRate_group[f"{PersonalCategoryRate_task_key}-LP"] = RLHFTemplate(**template)
+PersonalCategoryRate_group[f"{PersonalCategoryRate_task_key}-LP"] = RLTemplate(**template)
 
 
 PersonalCategoryRateLP_group = {}
@@ -313,7 +310,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalCategoryRate_task_key}",
 }
-PersonalCategoryRateLP_group[f"{PersonalCategoryRate_task_key}"] = RLHFTemplate(**template)
+PersonalCategoryRateLP_group[f"{PersonalCategoryRate_task_key}"] = RLTemplate(**template)
 
 
 PersonalCategoryRateLP1_group = {}
@@ -331,7 +328,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalCategoryRate_task_key}",
 }
-PersonalCategoryRateLP1_group[f"{PersonalCategoryRate_task_key}"] = RLHFTemplate(**template)
+PersonalCategoryRateLP1_group[f"{PersonalCategoryRate_task_key}"] = RLTemplate(**template)
 
 
 PersonalCategoryRateMP_group = {}
@@ -349,7 +346,7 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalCategoryRate_task_key}",
 }
-PersonalCategoryRateMP_group[f"{PersonalCategoryRate_task_key}"] = RLHFTemplate(**template)
+PersonalCategoryRateMP_group[f"{PersonalCategoryRate_task_key}"] = RLTemplate(**template)
 
 
 PersonalCategoryRateEP_group = {}
@@ -367,4 +364,4 @@ template = {
     'output_fields': ['item_list'],
     'template_id': f"{PersonalCategoryRate_task_key}",
 }
-PersonalCategoryRateEP_group[f"{PersonalCategoryRate_task_key}"] = RLHFTemplate(**template)
+PersonalCategoryRateEP_group[f"{PersonalCategoryRate_task_key}"] = RLTemplate(**template)

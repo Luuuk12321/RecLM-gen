@@ -1,17 +1,11 @@
-import copy
-
-import math
 import random
 from typing import List
 
-from tqdm import tqdm
-import numpy as np
-from RL.RL_template import *
-import torch
 from torch.utils.data import Dataset, DataLoader
-from utils.utils import get_item_list, load_pickle, side_tokenizer, get_item_ranking, get_history_text, save_pickle, \
-    get_output_text
-import Levenshtein
+from tqdm import tqdm
+
+from RL.RL_template import *
+from Utils.Utils import *
 
 
 class ExperienceDataset(Dataset):
@@ -32,23 +26,22 @@ def create_dataloader(data, batch_size, shuffle=True, device=None, **kwargs):
     return DataLoader(ds, batch_size=batch_size, shuffle=shuffle, **kwargs)
 
 
-class RLHFDataset(Dataset):
-    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train'):
+class RLDataset(Dataset):
+    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False):
         self.args = args
         self.task_template = task_template
         self.task_num = task_num
         self.mode = mode
         self.tokenizer = tokenizer
         self.teacher_port = self.args.teacher_port
+        self.saving = saving
 
         self.metas = data['metas']
         self.sequential = data['sequential']
-        # self.preference = data['preference']
-        # self.intention = data['intention']
         self.category2item = data['category']
         self.ranking_candidate = data['ranking_candidate']
-        if 'RLHFSeqRec_Result' in data:
-            self.RLHFSeqRec_Result = {u: data['RLHFSeqRec_Result'][idx][1] for idx, u in enumerate(self.sequential)}
+        if 'RLSeqRec_Result' in data:
+            self.RLSeqRec_Result = {u: data['RLSeqRec_Result'][idx][1] for idx, u in enumerate(self.sequential)}
 
         self.item2category = {}
         for c in self.category2item:
@@ -66,21 +59,9 @@ class RLHFDataset(Dataset):
         # self.decoder_start_token_id = self.tokenizer.bos_token_id
         # self.item_prefix_tree = self.create_item_prefix_tree()
 
-        print('compute_datum_info')
-        self.temp_candidate_items = None
         self.datum_info = []
-        self.complete_datum_info_path = None
-        if self.mode == 'val':
-            self.complete_datum_info_path = args.data_path + f'RLHF_datum_info_{self.mode}_{self.args.RLHF_val_tasks}_Top{self.args.topk}.pickle'
-        # elif self.mode == 'test':
-        #     self.complete_datum_info_path = args.data_path + f'RLHF_datum_info_{self.mode}_{self.args.RLHF_test_task}_Top{self.args.topk}.pickle'
-        elif self.mode == 'train':
-            self.complete_datum_info_path = args.data_path + f'RLHF_datum_info_{self.mode}_{self.args.RLHF_train_tasks}{"_AS" if self.args.add_seq else ""}.pickle'
-        self.complete_datum_info = load_pickle(self.complete_datum_info_path) or []
+        self.complete_datum_info = []
         self.compute_datum_info()
-        self.best_ranking_score = [0]
-        for i in range(0, self.args.topk*2):
-            self.best_ranking_score.append(self.best_ranking_score[i]+self.ranking_score_func(i)/math.log2(i+2))
 
     def find_maximum_category(self, item_list, target_item, max_count=99999):
         category_count = {c: 0 for c in self.category2item if target_item not in self.category2item[c]}
@@ -91,31 +72,6 @@ class RLHFDataset(Dataset):
         max_count = min(max_count, max(list(category_count.values())))
         category = [c for c in list(category_count.keys()) if category_count[c] >= max_count]
         return category
-
-    def vague_selecting(self, title_list, candidates):
-        res = copy.deepcopy(title_list)
-        for idx, _ in enumerate(res):
-            if _ not in candidates or _ in res[:idx]:
-                closest_distance = float('inf')
-                closest_match = None
-                for __ in list(set(candidates)-set(res[:idx])):
-                    distance = Levenshtein.distance(_, __)
-                    if distance < closest_distance:
-                        closest_distance = distance
-                        closest_match = __
-                res[idx] = closest_match
-        return res
-
-    def vague_mapping(self, title_list):
-        res = copy.deepcopy(title_list)
-        for idx, _ in enumerate(res):
-            if _ in self.title2item:
-                continue
-            for __ in list(set(self.title2item)-set(res[:idx])):
-                if Levenshtein.distance(_, __) < 3:
-                    res[idx] = __
-                    break
-        return res
 
     # def create_item_prefix_tree(self):
     #     title_index = [self.get_item_index(self.metas[_]['asin']) for _ in self.metas]
@@ -144,45 +100,45 @@ class RLHFDataset(Dataset):
     #     return item_prefix_tree
 
     def compute_datum_info(self):
-        val_num = 320
+        val_num = self.args.val_num_per_task
         for task, num in self.task_num.items():
-            if task == "RLHFSeqRec":
+            if task == "RLSeqRec":
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*0:val_num*1]]
-            elif task == "RLHF+PersonalControlRec":
+            elif task == "RL+PersonalControlRec":
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*1:val_num*2]]
-            elif task == "RLHF-PersonalControlRec":
+            elif task == "RL-PersonalControlRec":
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*2:val_num*3]]
-            elif task == 'RLHFPersonalCategoryRate':
+            elif task == 'RLPersonalCategoryRate':
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*3:val_num*4]]
-            elif task.startswith('RLHFPersonalCategoryRate'):
+            elif task.startswith('RLPersonalCategoryRate'):
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*3:val_num*4]]
-            elif task == "RLHFSeqRanking":
+            elif task == "RLSeqRanking":
                 for _ in range(num):
                     if self.mode in ['train', 'test']:
                         self.datum_info += [[task, u] for u in self.sequential]
                     elif self.mode == 'val':
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*4:val_num*5]]
-            elif task == "RLHFItemCount":
+            elif task == "RLItemCount":
                 for _ in range(num):
                     if self.mode in ['test']:
                         self.datum_info += [[task, u] for u in self.sequential]
@@ -190,25 +146,25 @@ class RLHFDataset(Dataset):
                         self.datum_info += [[task, u] for u in list(self.sequential.keys())[val_num*5:val_num*6]]
             else:
                 raise NotImplementedError
-        if len(self.complete_datum_info) != len(self.datum_info):
+
+        complete_datum_info_path = None
+        if self.mode == 'val':
+            complete_datum_info_path = self.args.data_path + f'RL_datum_info_{self.mode}_{self.args.RL_val_tasks}_Top{self.args.topk}.pickle'
+        elif self.mode == 'train':
+            complete_datum_info_path = self.args.data_path + f'RL_datum_info_{self.mode}_{self.args.RL_train_tasks}_Top{self.args.topk}.pickle'
+
+        if self.saving:
             self.complete_datum_info = []
             for idx in tqdm(range(len(self.complete_datum_info), len(self.datum_info)), desc=f'computing {self.mode} datum info'):
                 self.complete_datum_info.append(self.getitem(idx))
-            if self.mode in ['val', 'test']:
-                input_ids = self.tokenizer.batch_encode_plus([_['input_text'] for _ in self.complete_datum_info],
-                                                             truncation=True, max_length=2)['input_ids']
-                token_length = [len(_) for _ in input_ids]
-                datum_info_index = np.argsort(token_length).tolist()
-                self.complete_datum_info = [self.complete_datum_info[idx] for idx in datum_info_index]
-            save_pickle(self.complete_datum_info, self.complete_datum_info_path)
-        if self.mode == 'train':
-            self.shuffle()
-
-    def shuffle(self):
-        random.shuffle(self.complete_datum_info)
+            save_pickle(self.complete_datum_info, complete_datum_info_path)
+        else:
+            self.complete_datum_info = load_pickle(complete_datum_info_path) or []
+            if len(self.complete_datum_info) != len(self.datum_info):
+                self.complete_datum_info = []
 
     def __len__(self):
-        return len(self.complete_datum_info)
+        return len(self.datum_info)
 
     def get_item_index(self, item):
         if self.args.item_index == 'title':
@@ -246,8 +202,8 @@ class RLHFDataset(Dataset):
         template_selected = self.task_template[task][template_id]
         item_count = random.choice(range(self.args.topk//2, self.args.topk))+1 if self.mode == 'train' else self.args.topk
         input_field_data, output_field_data = {'item_count': item_count}, {}
-        if task in ["RLHFSeqRec", 'RLHF+PersonalControlRec', 'RLHF-PersonalControlRec', 'RLHFSeqRanking',
-                    'RLHFItemCount'] or task.startswith('RLHFPersonalCategoryRate'):
+        if task in ["RLSeqRec", 'RL+PersonalControlRec', 'RL-PersonalControlRec', 'RLSeqRanking',
+                    'RLItemCount'] or task.startswith('RLPersonalCategoryRate'):
             user = self.datum_info[idx][1]
             sub_sequential, target_item = self.get_sub_sequential(user)
             input_field_data.update({
@@ -261,83 +217,75 @@ class RLHFDataset(Dataset):
                 'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
             })
 
-            if task in ["RLHF+PersonalControlRec"]:
+            if task in ["RL+PersonalControlRec"]:
                 if self.mode in ['train', 'val']:
-                    # item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)['inference'][0]
-                    if self.mode == 'train':
-                        target_category = random.choice(self.item2category[target_item])
-                    else:
-                        target_category = self.item2category[target_item][-1]
-                    input_field_data.update({
-                        'target_category': target_category,
-                        # 'SeqRec_Result': [self.get_item_index(_) for _ in item_list]
-                    })
-                elif self.mode in ['test']:
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+                else:
+                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
+
+                if self.mode == 'train':
+                    target_category = random.choice(self.item2category[target_item])
+                else:
                     target_category = self.item2category[target_item][-1]
-                    input_field_data.update({
-                        'target_category': target_category,
-                        'SeqRec_Result': self.RLHFSeqRec_Result[user]
-                    })
+                input_field_data.update({
+                    'target_category': target_category,
+                    'SeqRec_Result': item_list
+                })
                 intention_template_key = random.choice(list(Intention_plus_group.keys()))
                 intention = Intention_plus_group[intention_template_key].get_input_text(input_field_data)
                 input_field_data.update({
                     'synthetic_intention': intention,
                 })
-            elif task in ["RLHF-PersonalControlRec"]:
+            elif task in ["RL-PersonalControlRec"]:
                 if self.mode in ['train', 'val']:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)['inference'][0]
-                    if self.mode == 'train':
-                        target_category = random.choice(self.find_maximum_category(item_list, target_item, max_count=2))
-                    else:
-                        target_category = self.find_maximum_category(item_list, target_item)[-1]
-                    input_field_data.update({
-                        'target_category': target_category,
-                        'SeqRec_Result': [self.get_item_index(_) for _ in item_list]
-                    })
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
                 else:
-                    item_list = [self.title2item[_][0] for _ in self.RLHFSeqRec_Result[user] if self.title2item.get(_)]
+                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
+
+                if self.mode in ['train']:
+                    target_category = random.choice(self.find_maximum_category(item_list, target_item, max_count=2))
+                else:
                     target_category = self.find_maximum_category(item_list, target_item)[-1]
-                    input_field_data.update({
-                        'target_category': target_category,
-                        'SeqRec_Result': self.RLHFSeqRec_Result[user]
-                    })
+
+                input_field_data.update({
+                    'target_category': target_category,
+                    'SeqRec_Result': item_list
+                })
                 intention_template_key = random.choice(list(Intention_minus_group.keys()))
                 intention = Intention_minus_group[intention_template_key].get_input_text(input_field_data)
                 input_field_data.update({
                     'synthetic_intention': intention,
                 })
-            elif task.startswith("RLHFPersonalCategoryRate"):
+            elif task.startswith("RLPersonalCategoryRate"):
                 if self.mode in ['train', 'val']:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)['inference'][0]
-                    if self.mode == 'train':
-                        if 'MP' in task or 'EP' in task:
-                            target_category = random.choice(self.item2category[target_item])
-                        elif 'LP' in task:
-                            target_category = random.choice(self.find_maximum_category(item_list, target_item, max_count=2))
-                        else:
-                            raise NotImplementedError
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+                else:
+                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
+
+                if self.mode in ['train']:
+                    if 'MP' in task or 'EP' in task:
+                        target_category = random.choice(self.item2category[target_item])
+                    elif 'LP' in task:
+                        target_category = random.choice(self.find_maximum_category(item_list, target_item, max_count=2))
                     else:
-                        if 'MP' in task or 'EP' in task:
-                            target_category = self.item2category[target_item][-1]
-                        elif 'LP' in task:
-                            target_category = self.find_maximum_category(item_list, target_item)[-1]
-                        else:
-                            raise NotImplementedError
-                    input_field_data.update({
-                        'target_category': target_category,
-                        'SeqRec_Result': [self.get_item_index(_) for _ in item_list]
-                    })
+                        raise NotImplementedError
                 else:
-                    target_category = self.item2category[target_item][-1]
-                    input_field_data.update({
-                        'target_category': target_category,
-                        'SeqRec_Result': self.RLHFSeqRec_Result[user]
-                    })
-                category_item_count = min(len(self.category2item[target_category]), item_count) if self.mode == 'train' else 5
+                    if 'MP' in task or 'EP' in task:
+                        target_category = self.item2category[target_item][-1]
+                    elif 'LP' in task:
+                        target_category = self.find_maximum_category(item_list, target_item)[-1]
+                    else:
+                        raise NotImplementedError
+                input_field_data.update({
+                    'target_category': target_category,
+                    'SeqRec_Result': item_list
+                })
+
                 if self.mode != 'train':
-                    target_category_item_count = 5
-                    output_category_item_count = 5
+                    p = int(task.split('_')[-1]/10)
+                    output_category_item_count = int(p*item_count / 100)
                 else:
+                    category_item_count = min(len(self.category2item[target_category]), item_count)
                     if 'LP' in task:
                         target_category_item_count = random.choice(range(category_item_count))+1
                         output_category_item_count = target_category_item_count-1
@@ -347,12 +295,13 @@ class RLHFDataset(Dataset):
                     else:
                         target_category_item_count = random.choice(range(category_item_count+1))
                         output_category_item_count = target_category_item_count
+                    p = int(target_category_item_count/item_count*10)
                 input_field_data.update({
                     'item_count': item_count,
-                    'category_proportion': f"{int(target_category_item_count/item_count*10)}0%",
+                    'category_proportion': f"{p}0%",
                     'category_count': output_category_item_count,
                 })
-            elif task in ["RLHFSeqRanking"]:
+            elif task in ["RLSeqRanking"]:
                 if self.mode == 'train':
                     candidate_num = random.choice(range(item_count, self.args.candidate_num)) + 1
                     output_items = [target_item]
@@ -366,7 +315,7 @@ class RLHFDataset(Dataset):
                     'candidate_titles': ', '.join([f"'{self.get_item_index(_)}'" for _ in ranking_candidate]),
                     'candidate_items': ranking_candidate
                 })
-            elif task in ["RLHFItemCount"]:
+            elif task in ["RLItemCount"]:
                 item_count = self.args.topk + 1 + idx % 5
                 input_field_data.update({'item_count': item_count})
 
@@ -381,7 +330,9 @@ class RLHFDataset(Dataset):
         return out_dict
 
     def __getitem__(self, idx):
-        return self.complete_datum_info[idx]
+        if len(self.complete_datum_info) > 0:
+            return self.complete_datum_info[idx]
+        return self.getitem(idx)
 
     def collate_fn(self, batch):
         batch_entry = {}
@@ -390,17 +341,14 @@ class RLHFDataset(Dataset):
         input_text = []
         input_field_data = []
         for i, entry in enumerate(batch):
-            if isinstance(entry, dict):
-                entry = [entry]
-            for _ in entry:
-                if 'task' in _:
-                    tasks.append(_['task'])
-                if 'input_text' in _:
-                    input_text.append(_['input_text'])
-                if 'input_field_data' in _:
-                    input_field_data.append(_['input_field_data'])
-                if 'output_text' in _:
-                    output_text.append(_['output_text'])
+            if 'task' in entry:
+                tasks.append(entry['task'])
+            if 'input_text' in entry:
+                input_text.append(entry['input_text'])
+            if 'input_field_data' in entry:
+                input_field_data.append(entry['input_field_data'])
+            if 'output_text' in entry:
+                output_text.append(entry['output_text'])
         batch_entry['input_text'] = input_text
         batch_entry['output_text'] = output_text
 
@@ -416,304 +364,35 @@ class RLHFDataset(Dataset):
             batch_entry['task'] = tasks
         return batch_entry
 
-    '''
-    1. 模型生成的推荐列表 符合用户的控制意图。
-    2. 模型生成的推荐列表 具有更低的毒性：长度错误，重复item，不存在item（不存在候选集）。
-    '''
-    def get_list_reward_hard_encode_new(self, task, input_field_data, title_list, new_data=False):
-        item_count = input_field_data['item_count']
-        list_length = len(title_list)
-        item_count_ratio = min(item_count/list_length, list_length/item_count)
-        repeat_score, exceed_score, not_exist_score, target_score = -1.0, -1.0, -1.0, 1.0       # NR-5
-        # repeat_score, exceed_score, not_exist_score, target_score = 0.0, 0.0, 0.0, 1.0            # NR-6
-        candidates = input_field_data.get('candidate_titles') or self.title2item
-        user = input_field_data['user']
-        sub_sequential = input_field_data['sub_sequential']
-        item_list = [self.title2item[_][0] if _ in self.title2item else list(self.metas.keys())[0] for _ in title_list]
-
-        target_item = input_field_data['target_item']
-        item_ranking = get_item_ranking(self.args.backup_ip, [user], [sub_sequential], [item_list], port=self.teacher_port)['ranking'][0]
-        if task == 'RLHFSeqRanking':
-            item_ranking = np.argsort(item_ranking)
-            item_ranking = np.argsort(item_ranking).tolist()
-
-        item_score = []
-        list_score = []
-        category_count = 0
-        for idx, (_, __) in enumerate(zip(item_list, item_ranking)):
-            temp_score = 1.0 if _ == target_item else 1.0 / math.log2(__ + 2)
-            if idx >= item_count:
-                item_score.append(exceed_score)
-                list_score.append(exceed_score)
-            elif title_list[idx] not in candidates:
-                item_score.append(not_exist_score)
-                list_score.append(not_exist_score)
-            elif _ in item_list[:idx]:
-                item_score.append(repeat_score)
-                list_score.append(repeat_score)
-            elif task in ['RLHFSeqRec', 'RLHFItemCount', 'RLHFSeqRanking']:
-                item_score.append(temp_score)
-                list_score.append(temp_score/math.log2(idx + 2))
-            elif task in ['RLHF+PersonalControlRec', 'RLHF-PersonalControlRec']:
-                target_category = input_field_data['target_category']
-                if (task == 'RLHF+PersonalControlRec' and _ in self.category2item[target_category]) or \
-                        (task == 'RLHF-PersonalControlRec' and _ not in self.category2item[target_category]):
-                    item_score.append(1.0*0.8 + temp_score*0.2)
-                    list_score.append(1.0*0.8 + temp_score/math.log2(idx + 2)*0.2)
-                else:
-                    item_score.append(temp_score*0.2)
-                    list_score.append(temp_score/math.log2(idx + 2)*0.2)
-            elif task == 'RLHFPersonalCategoryRate':
-                target_category = input_field_data['target_category']
-                if _ in self.category2item[target_category]:
-                    if category_count < input_field_data['category_count']:
-                        item_score.append(1.0*0.8 + temp_score*0.2)
-                        list_score.append(1.0*0.8 + temp_score/math.log2(idx + 2)*0.2)
-                    else:
-                        item_score.append(temp_score*0.2)
-                        list_score.append(temp_score/math.log2(idx + 2)*0.2)
-                    category_count += 1
-                else:
-                    item_score.append(0.5*0.8 + temp_score*0.2)
-                    list_score.append(0.5*0.8 + temp_score/math.log2(idx + 2)*0.2)
-            else:
-                raise NotImplementedError
-        item_score = torch.tensor(item_score, device=self.args.gpu)
-        list_score = torch.tensor(list_score, device=self.args.gpu)
-        if task in ['RLHFSeqRec', 'RLHFItemCount', 'RLHFSeqRanking']:
-            max_list_reward = self.best_ranking_score[item_count]
-        elif task in ['RLHF+PersonalControlRec', 'RLHF-PersonalControlRec']:
-            max_list_reward = item_count*0.8+self.best_ranking_score[item_count]*0.2
-        elif task == 'RLHFPersonalCategoryRate':
-            max_list_reward = (input_field_data['category_count']+(item_count-input_field_data['category_count'])*0.5)*0.8+self.best_ranking_score[item_count]*0.2
-        else:
-            raise NotImplementedError
-        item_reward = item_score
-        list_reward = list_score.sum()/max_list_reward
-
-        res = [[task, title_list, list_reward, item_reward]]
-        if new_data:
-            new_title_list = self.vague_selecting(title_list, candidates)
-            new_title_idx = torch.argsort(item_reward, descending=True)
-            new_title_list_sorted = [new_title_list[idx] for idx in new_title_idx]
-            if len(new_title_list_sorted) < item_count:
-                extend_count = item_count-len(new_title_list_sorted)
-                new_title_list_sorted.extend(random.choices(list(set(candidates)-set(new_title_list_sorted)), k=extend_count))
-            new_title_list_sorted = new_title_list_sorted[:item_count]
-            res += self.get_list_reward_hard_encode_new(task, input_field_data, new_title_list_sorted, False)
-        return res
-
-    def get_list_reward_hard_encode_NR_7(self, task, input_field_data, title_list, new_data=False):
-        # ranking_score_frac, task_score_frac = 0.2, 0.8            # NR-11
-        # ranking_score_frac, task_score_frac = 0.5, 0.5            # NR-13
-        ranking_score_frac, task_score_frac = self.args.reward_alpha, 1.0-self.args.reward_alpha            # NR-13
-        item_count = input_field_data['item_count']
-        list_length = len(title_list)
-        item_count_ratio = min(item_count/list_length, list_length/item_count)
-        repeat_score, exceed_score, not_exist_score, in_history_score, target_score = -1.0, -1.0, -1.0, -1.0, 1.0
-        candidates = input_field_data.get('candidate_titles') or self.title2item
-        user = input_field_data['user']
-        sub_sequential = input_field_data['sub_sequential']
-        item_list = [self.title2item[_][0] if _ in self.title2item else list(self.metas.keys())[0] for _ in title_list]
-
-        target_item = input_field_data['target_item']
-        item_ranking = get_item_ranking(self.args.backup_ip, [user], [sub_sequential], [item_list], port=self.teacher_port)['ranking'][0]
-        if task == 'RLHFSeqRanking':
-            item_ranking = np.argsort(item_ranking)
-            item_ranking = np.argsort(item_ranking).tolist()
-
-        rank_score = []
-        rank_corrected_score = []
-        task_score = []
-        in_category_count, out_category_count = 0, 0
-        target_category = input_field_data['target_category']
-        for idx, (_, __) in enumerate(zip(item_list, item_ranking)):
-            if idx >= item_count:
-                rank_score.append(exceed_score)
-                rank_corrected_score.append(exceed_score)
-                task_score.append(exceed_score)
-            elif title_list[idx] not in candidates:
-                rank_score.append(not_exist_score)
-                rank_corrected_score.append(not_exist_score)
-                task_score.append(not_exist_score)
-            elif _ in item_list[:idx]:
-                rank_score.append(repeat_score)
-                rank_corrected_score.append(repeat_score)
-                task_score.append(repeat_score)
-            elif _ in input_field_data['sub_sequential']:
-                rank_score.append(in_history_score)
-                rank_corrected_score.append(in_history_score)
-                task_score.append(in_history_score)
-            else:
-                # temp_score = 1.0 if _ == target_item else self.ranking_score_func(__)       # NR-12
-                temp_score = 1.0 if _ == target_item else self.ranking_score_func(__+1)       # NR-13
-                rank_score.append(temp_score)
-                rank_corrected_score.append(temp_score / math.log2(idx + 2))
-                if _ in self.category2item[target_category]:
-                    in_category_count += 1
-                else:
-                    out_category_count += 1
-                if task in ['RLHFSeqRec', 'RLHFItemCount', 'RLHFSeqRanking']:
-                    pass
-                elif task in ['RLHF+PersonalControlRec', 'RLHF-PersonalControlRec']:
-                    if _ in self.category2item[target_category]:
-                        if '+' in task:
-                            task_score.append(1.0)
-                        else:
-                            task_score.append(0.0)
-                    elif _ not in self.category2item[target_category]:
-                        if '-' in task:
-                            task_score.append(1.0)
-                        else:
-                            task_score.append(0.0)
-                elif task.startswith('RLHFPersonalCategoryRate'):
-                    if 'LP' in task:
-                        # if in_category_count <= input_field_data['category_count']:
-                        #     task_score.append(0.5)
-                        # else:
-                        #     if _ in self.category2item[target_category]:
-                        #         task_score.append(0.0)
-                        #     else:
-                        #         task_score.append(1.0)
-                        # NR-19
-                        if out_category_count > (input_field_data['item_count']-input_field_data['category_count']):
-                            task_score.append(0.5)
-                        else:
-                            if _ not in self.category2item[target_category]:
-                                task_score.append(1.0)
-                            elif in_category_count < input_field_data['category_count']:
-                                task_score.append(0.5)
-                            else:
-                                task_score.append(0.0)
-
-                    elif 'MP' in task:
-                        # if out_category_count < (input_field_data['item_count'] - input_field_data['category_count']):
-                        #     task_score.append(0.5)
-                        # else:
-                        #     if _ in self.category2item[target_category]:
-                        #         task_score.append(1.0)
-                        #     else:
-                        #         task_score.append(0.0)
-                        # NR-19
-                        if in_category_count > input_field_data['category_count']:
-                            task_score.append(0.5)
-                        else:
-                            if _ in self.category2item[target_category]:
-                                task_score.append(1.0)
-                            elif out_category_count < (input_field_data['item_count']-input_field_data['category_count']):
-                                task_score.append(0.5)
-                            else:
-                                task_score.append(0.0)
-
-                    elif 'EP' in task:
-                        if _ in self.category2item[target_category]:
-                            if in_category_count <= input_field_data['category_count']:
-                                task_score.append(1.0)
-                            else:
-                                task_score.append(0.0)
-                        else:
-                            if in_category_count >= input_field_data['category_count']:
-                                task_score.append(1.0)
-                            else:
-                                if out_category_count <= (input_field_data['item_count']-input_field_data['category_count']):
-                                    task_score.append(0.5)
-                                else:
-                                    task_score.append(0.0)
-                    else:
-                        raise NotImplementedError
-                else:
-                    raise NotImplementedError
-        rank_score = torch.tensor(rank_score, device=self.args.gpu)
-        rank_corrected_score = torch.tensor(rank_corrected_score, device=self.args.gpu)
-        task_score = torch.tensor(task_score, device=self.args.gpu)
-        if task in ['RLHFSeqRec', 'RLHFItemCount', 'RLHFSeqRanking']:
-            item_reward = rank_score
-            # list_task_reward = rank_corrected_score.sum()/self.best_ranking_score[item_count]       # NR-18
-            list_task_reward = 1.0/math.log2(item_list.index(target_item)+2) if target_item in item_list else 0.0
-        elif task in ['RLHF+PersonalControlRec', 'RLHF-PersonalControlRec']:
-            item_reward = rank_score*ranking_score_frac + task_score*task_score_frac
-            target_count = min(item_count, len(self.category2item[target_category])) if '+' in task else item_count
-            # list_task_reward = rank_corrected_score.sum()/self.best_ranking_score[item_count]*ranking_score_frac + task_score.sum()/target_count*task_score_frac       # NR-18
-            if '+' in task:
-                # list_task_reward = 1.0 / math.log2(target_count-in_category_count+2)        # NR-15, 17
-                list_task_reward = 1.0/(target_count-in_category_count+1)        # NR-18
-                # list_task_reward = 2*in_category_count/target_count-1
-            else:
-                # list_task_reward = 1.0 / math.log2(target_count-out_category_count+2)        # NR-15, 17
-                list_task_reward = 1.0/(target_count-out_category_count+1)        # NR-18
-                # list_task_reward = 2*out_category_count/target_count-1
-        elif task.startswith('RLHFPersonalCategoryRate'):
-            item_reward = rank_score*ranking_score_frac + task_score*task_score_frac
-            # list_task_reward = rank_corrected_score.sum()/self.best_ranking_score[item_count]*ranking_score_frac + task_score.sum()/target_count*task_score_frac       # NR-18
-            if 'LP' in task and in_category_count <= input_field_data['category_count']:
-                list_task_reward = 1.0
-            elif 'MP' in task and in_category_count >= input_field_data['category_count']:
-                list_task_reward = 1.0
-            elif 'EP' in task and in_category_count == input_field_data['category_count']:
-                list_task_reward = 1.0
-            else:
-                # list_task_reward = 1.0/(math.log2(abs(in_category_count-input_field_data['category_count'])+2))   # NR-15, 17
-                list_task_reward = 1.0/(abs(in_category_count-input_field_data['category_count'])+1)   # NR-18
-                # list_task_reward = -abs(in_category_count-input_field_data['category_count'])/input_field_data['item_count']
-        else:
-            raise NotImplementedError
-
-        # list_reward = list_task_reward        # NR-14, 15
-        list_reward = rank_corrected_score.sum()/self.best_ranking_score[item_count]*ranking_score_frac + list_task_reward*task_score_frac        # NR-17-21
-        # res = [[task, title_list, list_reward, item_reward]]        # NR-10, 17, 18, 19
-        # res = [[task, title_list, list_reward, item_reward*0.1]]    # NR-11
-        # res = [[task, title_list, list_reward, item_reward*0.3]]    # NR-12
-        # res = [[task, title_list, list_reward, item_reward*0.5]]    # NR-13
-        # res = [[task, title_list, list_reward, item_reward*0.3]]    # NR-14, 15
-        # res = [[task, title_list, list_reward*100, item_reward]]    # NR-16
-        res = [[task, title_list, list_reward*10, item_reward]]    # NR-20
-        # res = [[task, title_list, list_reward*10, item_reward*2]]    # NR-21
-        if new_data:
-            new_title_list = self.vague_selecting(title_list, candidates)
-            new_title_idx = torch.argsort(item_reward, descending=True)
-            new_title_list_sorted = [new_title_list[idx] for idx in new_title_idx]
-            if len(new_title_list_sorted) < item_count:
-                extend_count = item_count-len(new_title_list_sorted)
-                new_title_list_sorted.extend(random.choices(list(set(candidates)-set(new_title_list_sorted)), k=extend_count))
-            new_title_list_sorted = new_title_list_sorted[:item_count]
-            res += self.get_list_reward_hard_encode_NR_7(task, input_field_data, new_title_list_sorted, False)
-        return res
-
-    def ranking_score_func(self, idx):
-        if 'NR-9' in self.args.model_name:
-            return 1.0-idx/len(self.metas)      # NR-9
-        else:
-            return 1.0/math.log2(idx+2)         # NR-8
-
 
 Train_task_group_mapping = {
-    "RLHFSeqRec": SeqRec_group,
-    "RLHFSeqRanking": SeqRanking_group,
-    "RLHF+PersonalControlRec": PersonalControlRec_group,
-    "RLHF-PersonalControlRec": PersonalControlRec_group,
-    "RLHFPersonalCategoryRate": PersonalCategoryRate_group,
-    "RLHFPersonalCategoryRateLP": PersonalCategoryRateLP1_group,
-    "RLHFPersonalCategoryRateMP": PersonalCategoryRateMP_group,
-    "RLHFPersonalCategoryRateEP": PersonalCategoryRateEP_group,
+    "RLSeqRec": SeqRec_group,
+    "RLSeqRanking": SeqRanking_group,
+    "RL+PersonalControlRec": PersonalControlRec_group,
+    "RL-PersonalControlRec": PersonalControlRec_group,
+    "RLPersonalCategoryRate": PersonalCategoryRate_group,
+    "RLPersonalCategoryRateLP": PersonalCategoryRateLP1_group,
+    "RLPersonalCategoryRateMP": PersonalCategoryRateMP_group,
+    "RLPersonalCategoryRateEP": PersonalCategoryRateEP_group,
 }
 
 Val_task_group_mapping = {
-    "RLHFSeqRec": SeqRec_group,
-    "RLHFSeqRanking": SeqRanking_group,
-    "RLHFItemCount": SeqRec_group,
-    "RLHF+PersonalControlRec": PersonalControlRec_group,
-    "RLHF-PersonalControlRec": PersonalControlRec_group,
-    "RLHFPersonalCategoryRate": PersonalCategoryRate_group,
-    "RLHFPersonalCategoryRateLP": PersonalCategoryRateLP_group,
-    "RLHFPersonalCategoryRateMP": PersonalCategoryRateMP_group,
-    "RLHFPersonalCategoryRateEP": PersonalCategoryRateEP_group,
+    "RLSeqRec": SeqRec_group,
+    "RLSeqRanking": SeqRanking_group,
+    "RLItemCount": SeqRec_group,
+    "RL+PersonalControlRec": PersonalControlRec_group,
+    "RL-PersonalControlRec": PersonalControlRec_group,
+    "RLPersonalCategoryRate": PersonalCategoryRate_group,
+    "RLPersonalCategoryRateLP": PersonalCategoryRateLP_group,
+    "RLPersonalCategoryRateMP": PersonalCategoryRateMP_group,
+    "RLPersonalCategoryRateEP": PersonalCategoryRateEP_group,
 }
 
 Test_task_group_mapping = {
-    "RLHFSeqRec": SeqRec_group,
-    "RLHFSeqRanking": SeqRanking_group,
-    "RLHFItemCount": SeqRec_group,
-    "RLHF+PersonalControlRec": PersonalControlRec_group,
-    "RLHF-PersonalControlRec": PersonalControlRec_group,
-    "RLHFPersonalCategoryRate": PersonalCategoryRate_group
+    "RLSeqRec": SeqRec_group,
+    "RLSeqRanking": SeqRanking_group,
+    "RLItemCount": SeqRec_group,
+    "RL+PersonalControlRec": PersonalControlRec_group,
+    "RL-PersonalControlRec": PersonalControlRec_group,
+    "RLPersonalCategoryRate": PersonalCategoryRate_group
 }
