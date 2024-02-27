@@ -1,19 +1,16 @@
 import copy
 import os.path
 import pickle
-import time
-import xml.etree.ElementTree as ET
-import numpy as np
-import openai
+import re
+
 import requests
 import torch
+import torch.nn.functional as F
 from Levenshtein import distance
 from einops import rearrange
 from openai import OpenAI
 from torch.nn.utils.rnn import pad_sequence
-import torch.nn.functional as F
-from tqdm import tqdm
-import re
+from collections import deque, namedtuple
 
 huggingface_proxies = {
     'http': '172.31.225.67:12621',
@@ -31,13 +28,15 @@ def match_idx(s):
 
 
 def vague_map(titles, all_titles):
-    for idx, title in enumerate(titles):
+    temp = copy.deepcopy(titles)
+    for idx, title in enumerate(temp):
         if title in all_titles:
             continue
         for _title in all_titles:
             if distance(title, _title) <= 3:
-                titles[idx] = _title
+                temp[idx] = _title
                 break
+    return temp
 
 
 def load_pickle(filename):
@@ -60,15 +59,23 @@ def side_tokenizer(text: list[str] or list[list[str]], padding_side, tokenizer, 
     return tokenizer.batch_encode_plus(text, **kwargs)
 
 
-def get_item_list(ip, users, sub_sequential, k, candidate_item_list=None, target_category=None, port=12621):
-    url = f"http://{ip}:{port}/inference"  # 替换为你要发送 POST 请求的 URL
+def sync_dict(accelerator, data: dict):
+    temp = copy.deepcopy(data)
+    data_tensor = torch.tensor([v for k, v in data.items()], device=accelerator.device)
+    data_tensor = accelerator.reduce(data_tensor)
+    for k, v in zip(temp, data_tensor):
+        temp[k] = float(v)
+    return temp
 
-    # 定义要发送的数据，通常以字典形式
+
+def get_item_list(ip, users, sub_sequential, k, candidate_item_list=None, target_category=None, port=12621, immediately=True):
+    url = f"http://{ip}:{port}/inference"
     data = {
         "users": users,
         "item_lengths": [len(_) for _ in sub_sequential],
         "k": k,
-        "item_lists": sub_sequential
+        "item_lists": sub_sequential,
+        "immediately": 1 if immediately else 0
     }
     if candidate_item_list is not None:
         data['candidate_item_lists'] = candidate_item_list
@@ -81,22 +88,19 @@ def get_item_list(ip, users, sub_sequential, k, candidate_item_list=None, target
         "Accept-Encoding": "gzip, deflate, br",
         "Connection": "keep-alive"
     }
-    # 发送 POST 请求
+
     response = requests.post(url, json=data, headers=headers)
-
-    # 处理响应
     assert response.status_code == 200
-    return response.json()
+    return response.json()['inference'][0]
 
 
-def get_item_ranking(ip, users, sub_sequential, candidate_item_list=None, port=12621):
-    url = f"http://{ip}:{port}/ranking"  # 替换为你要发送 POST 请求的 URL
-
-    # 定义要发送的数据，通常以字典形式
+def get_item_ranking(ip, users, sub_sequential, candidate_item_list=None, port=12621, immediately=True):
+    url = f"http://{ip}:{port}/ranking"
     data = {
         "users": users,
         "item_lengths": [len(_) for _ in sub_sequential],
-        "item_lists": sub_sequential
+        "item_lists": sub_sequential,
+        "immediately": 1 if immediately else 0
     }
     if candidate_item_list is not None:
         data['candidate_item_lists'] = candidate_item_list
@@ -107,12 +111,10 @@ def get_item_ranking(ip, users, sub_sequential, candidate_item_list=None, port=1
         "Accept-Encoding": "gzip, deflate, br",
         "Connection": "keep-alive"
     }
-    # 发送 POST 请求
-    response = requests.post(url, json=data, headers=headers)
 
-    # 处理响应
+    response = requests.post(url, json=data, headers=headers)
     assert response.status_code == 200
-    return response.json()
+    return response.json()['ranking'][0]
 
 
 # helper functions
@@ -352,5 +354,14 @@ class RunningMoments:
         return xs_mean.item(), (xs_var * xs_count / (xs_count - 1)).float().sqrt().item()
 
 
+Memory = namedtuple('Memory', [
+    'sequence',
+    'action_mask',
+    'old_action_value',
+    'old_sequence_log_probs_shifted',
+    'ref_sequence_log_probs_shifted',
+    'whitened_advantages',
+    'returns'
+])
 if __name__ == '__main__':
     pass

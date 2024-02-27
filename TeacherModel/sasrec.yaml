@@ -8,7 +8,7 @@ ITEM_LIST_LENGTH_FIELD: item_length
 LIST_SUFFIX: _list
 MAX_ITEM_LIST_LENGTH: 10
 device: cuda
-gpu_id: 1
+gpu_id: 0
 use_gpu: True
 candidate_num: 10
 

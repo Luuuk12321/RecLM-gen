@@ -1,13 +1,6 @@
-import copy
-import random
-
-import numpy as np
-import torch
 from torch.utils.data import Dataset
-from tqdm import tqdm
 
-from SFT.SFT_templates import *
-from utils.utils import *
+from Utils.Utils import *
 
 
 class BaseDataset(Dataset):
@@ -16,14 +9,24 @@ class BaseDataset(Dataset):
         self.mode = mode
         self.tokenizer = tokenizer
         self.teacher_port = self.args.teacher_port
-        self.complete_datum_info = load_pickle(self.args.data_file)
+        if self.mode == 'train':
+            self.complete_datum_info = load_pickle(self.args.train_data_file)
+        elif self.mode == 'val':
+            self.complete_datum_info = load_pickle(self.args.val_data_file)
+        else:
+            raise NotImplementedError
+        self.epoch_idx = 0
         assert len(self.complete_datum_info) > 0
 
     def __len__(self):
-        return len(self.complete_datum_info)
+        return len(self.complete_datum_info[self.epoch_idx])
 
     def __getitem__(self, idx):
-        return self.complete_datum_info[idx]
+        return self.complete_datum_info[self.epoch_idx][idx]
+
+    def set_epoch(self, epoch):
+        print(f'set epoch {epoch}')
+        self.epoch_idx = epoch % len(self.complete_datum_info)
 
     def collate_fn(self, batch):
         batch_entry = {}

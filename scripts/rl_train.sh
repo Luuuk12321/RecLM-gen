@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python main.py \
+CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
@@ -12,10 +12,11 @@ python main.py \
   --clip_grad_norm 0.5 \
   --epoch 4 \
   --gen_max_length 512 \
-  --train_stage RLHF \
-  --RLHF_actor_lora_r 4 \
-  --RLHF_critic_lora_r 4 \
-  --RLHF_train_tasks RLHFSeqRec,RLHF+PersonalControlRec,RLHF-PersonalControlRec,RLHFPersonalCategoryRateLP,RLHFPersonalCategoryRateMP,RLHFPersonalCategoryRateEP \
+  --train_stage RL \
+  --RL_actor_lora_r 4 \
+  --RL_critic_lora_r 4 \
+  --RL_train_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP \
+  --RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP,RLItemCount \
   --backup_ip 0.0.0.0 \
   --lr 0.000005 \
   --lora_drop 0.0 \
@@ -28,7 +29,6 @@ python main.py \
   --idx \
   --llama2_chat_template \
   --FA2 \
-  --gpu cuda:2 \
   --lr_power 2.0 \
   --learn_batch 1 \
   --sample_num 2 \

@@ -1,27 +1,14 @@
-import os
-import json
-import pickle
-import random
-import re
-
-import requests
-from Levenshtein import distance
-from torch.utils.data import DataLoader
-from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor
-from concurrent.futures import ProcessPoolExecutor
-from openai import OpenAI
 import argparse
-import pandas as pd
-import time
+import json
+from concurrent.futures import ProcessPoolExecutor
+from concurrent.futures import ThreadPoolExecutor
 
-from transformers import StoppingCriteriaList, MaxLengthCriteria
+from tqdm import tqdm
 
 from SFT.SFT_dataset import Test_task_group_mapping, SFTDataset
-from utils.metrics import Metrics
-from utils.utils import *
 from param import Config
-
+from Utils.Metrics import Metrics
+from Utils.Utils import *
 
 headers = {"User-Agent": "Test Client"}
 
@@ -137,7 +124,7 @@ if __name__ == "__main__":
         ts = [t.strip() for t in ts]
         ts = ts[:d['input_field_data']['item_count']]
 
-        vague_map(ts, test_data.title2item)
+        ts = vague_map(ts, test_data.title2item)
         d[f'{args.SFT_test_task}_output_title_list'] = ts
 
         return d
@@ -223,7 +210,7 @@ if __name__ == "__main__":
             output_title = example[f'{args.model_name}_output']
             output_title_list = [_.strip() for _ in output_title.strip().split('\n')]
             output_title_list = [rm_idx(_) if args.idx else _ for _ in output_title_list]
-            vague_map(output_title_list, test_data.title2item)
+            output_title_list = vague_map(output_title_list, test_data.title2item)
             example[f'{args.SFT_test_task}_output_title_list'] = output_title_list
     else:
         with ProcessPoolExecutor(max_workers=args.num_process) as executor:

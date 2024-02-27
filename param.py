@@ -1,6 +1,5 @@
 import argparse
 import pprint
-import yaml
 
 
 def is_interactive():
@@ -16,17 +15,18 @@ def add_args_SFT(parser):
     parser.add_argument("--SFT_actor_lora_r", type=int, default=16)
     parser.add_argument("--SFT_actor_lora_a", type=int, default=8)
     parser.add_argument("--full_fine_tune", action='store_true')
+
     return parser
 
 
-def add_args_RLHF(parser):
-    parser.add_argument('--RLHF_load', type=str, default=None, help='Load the model (usually the fine-tuned model).')
-    parser.add_argument('--RLHF_train_tasks', type=str, default='', help='RLHFSeqRec,RLHFSeqRanking,RLHF+PersonalControlRec,RLHF-PersonalControlRec,RLHFPersonalCategoryRate')
-    parser.add_argument('--RLHF_val_tasks', type=str, default='', help='RLHFSeqRec,RLHFSeqRanking,RLHF+PersonalControlRec,RLHF-PersonalControlRec,RLHFPersonalCategoryRate,RLHFItemCount')
-    parser.add_argument("--RLHF_actor_lora_r", type=int, default=4)
-    parser.add_argument("--RLHF_actor_lora_a", type=int, default=2)
-    parser.add_argument("--RLHF_critic_lora_r", type=int, default=4)
-    parser.add_argument("--RLHF_critic_lora_a", type=int, default=2)
+def add_args_RL(parser):
+    parser.add_argument('--RL_load', type=str, default=None, help='Load the model (usually the fine-tuned model).')
+    parser.add_argument('--RL_train_tasks', type=str, default='', help='RLSeqRec,RLSeqRanking,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRate')
+    parser.add_argument('--RL_val_tasks', type=str, default='', help='RLSeqRec,RLSeqRanking,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRate,RLItemCount')
+    parser.add_argument("--RL_actor_lora_r", type=int, default=4)
+    parser.add_argument("--RL_actor_lora_a", type=int, default=2)
+    parser.add_argument("--RL_critic_lora_r", type=int, default=4)
+    parser.add_argument("--RL_critic_lora_a", type=int, default=2)
 
     parser.add_argument("--eps_clip", type=float, default=0.2)
     parser.add_argument("--value_clip", type=float, default=0.4)
@@ -45,11 +45,10 @@ def add_args_RLHF(parser):
     parser.add_argument("--vague_mapping", action='store_true')
     parser.add_argument("--lr_power", type=float, default=2.0)
     parser.add_argument("--learn_batch", type=int, default=2)
-    parser.add_argument("--new_data", action='store_true')
-    parser.add_argument("--add_seq", action='store_true')
-    parser.add_argument("--model_name", type=str, default=None, help='RLHF训练时自动生成')
-    parser.add_argument("--model_name_suffix", type=str, default="")
     parser.add_argument("--reward_alpha", type=float, default=0.5)
+    parser.add_argument("--model_name", type=str, default=None, help='RL训练时自动生成')
+    parser.add_argument("--model_name_suffix", type=str, default="")
+    parser.add_argument("--val_save_step", type=int, default=100)
     return parser
 
 
@@ -64,12 +63,14 @@ def add_args(parse=True, **optional_kwargs):
 
     # Data Splits
     parser.add_argument('--data_path', type=str, default=None, help='data path')
-    parser.add_argument('--data_file', type=str, default=None, help='data file')
+    parser.add_argument('--train_data_file', type=str, default=None, help='train data file')
+    parser.add_argument('--val_data_file', type=str, default=None, help='val data file')
     parser.add_argument('--candidate_num', type=int, default=10, help='候选集大小')
     parser.add_argument('--max_item_length', type=int, default=10, help='最大历史记录长度')
     parser.add_argument('--max_token_length', type=int, default=512, help='最大输入token长度')
     parser.add_argument('--item_index', type=str, default='title', help='in {id, title, title64, title64_t}')
     parser.add_argument('--topk', type=int, default=10)
+    parser.add_argument("--val_num_per_task", type=int, default=320)
 
     # Checkpoint
     parser.add_argument('--output', type=str, default='snap/')
@@ -95,18 +96,21 @@ def add_args(parse=True, **optional_kwargs):
     parser.add_argument("--lora_dropout", type=float, default=0.1)
     parser.add_argument("--quantization", action='store_true', help='是否量化基础模型')
 
-    parser.add_argument("--lm_head", action='store_true', help='是否全量训练lm_head')
-
     # Inference
     parser.add_argument('--gen_max_length', type=int, default=512, help='训练，及推理生成token的最大长度')
 
     # Etc.
     parser.add_argument("--dry", action='store_true')
-    parser.add_argument("--train_stage", type=str, default='SFT', help='in {SFT, SFT_Merge, RLHF, RLHF_Merge}')
+    parser.add_argument("--train_stage", type=str, default='SFT', help='in {SFT, SFT_Merge, RL, RL_Merge}')
     parser.add_argument("--log_to_file", action='store_true')
     parser.add_argument("--proxy", action='store_true')
     parser.add_argument("--backup_ip", type=str, default='0.0.0.0', help='服务ip，包括tensorboard服务，SASRec服务')
     parser.add_argument('--teacher_port', type=int, default=12621, help='12621 in movie, 12622 in steam')
+
+    parser.add_argument("--lm_head_full_tune", action='store_true', help='是否全量训练lm_head')
+    parser.add_argument("--lora_module_name", type=str, default='', help='empty string for all linear layers. eg. "proj,layer" means the module names that with "proj" or "layer"')
+
+    parser.add_argument("--distributed", action='store_true', help='分布式训练')
 
     return parser
 
@@ -114,10 +118,10 @@ def add_args(parse=True, **optional_kwargs):
 def get_args(add_external_args_func=None):
     parser = add_args()
     args, remain_args = parser.parse_known_args()
-    if args.train_stage in ['SFT', 'SFT_Test', 'SFT_Merge']:
+    if args.train_stage in ['SFT', 'SFT_Merge']:
         parser = add_args_SFT(parser)
-    elif args.train_stage in ['RLHF', 'RLHF_Test', 'RLHF_Merge']:
-        parser = add_args_RLHF(parser)
+    elif args.train_stage in ['RL', 'RL_Merge']:
+        parser = add_args_RL(parser)
     if add_external_args_func:
         parser = add_external_args_func(parser)
     args = parser.parse_args(remain_args, args)
