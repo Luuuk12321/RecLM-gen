@@ -8,7 +8,7 @@ from Utils.Utils import *
 
 
 class SFTDataset(Dataset):
-    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False):
+    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False, immediately=True):
         self.args = args
         self.task_template = task_template
         self.task_num = task_num
@@ -16,6 +16,7 @@ class SFTDataset(Dataset):
         self.tokenizer = tokenizer
         self.teacher_port = self.args.teacher_port
         self.saving = saving
+        self.immediately = immediately
 
         self.category2item = data['category']
         self.metas = data['metas']
@@ -145,7 +146,7 @@ class SFTDataset(Dataset):
     def get_output_item_list(self, task, user=None, sub_sequential=None, target_item=None, target_category=None, direction=None, item_count=None, category_item_count=None, has_candidate=False):
         output_items, candidate_items = [], []
         if task in ['SFTSeqRec']:
-            output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+            output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port, immediately=self.immediately)
             if target_item in output_items:
                 output_items.remove(target_item)
             output_items = ([target_item] + output_items)[:item_count]
@@ -160,7 +161,7 @@ class SFTDataset(Dataset):
             output_items = ([target_item] + output_items)[:item_count]
         elif task in ["SFTPersonalControlRec"]:
             output_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count,
-                                         target_category=[direction+target_category], port=self.teacher_port)
+                                         target_category=[direction+target_category], port=self.teacher_port, immediately=self.immediately)
             if target_item in output_items:
                 output_items.remove(target_item)
                 output_items = ([target_item] + output_items)
@@ -171,9 +172,9 @@ class SFTDataset(Dataset):
             random.shuffle(output_items)
         elif task in ['SFTPersonalCategoryRate']:
             in_category_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], category_item_count,
-                                              target_category=['+'+target_category], port=self.teacher_port)
+                                              target_category=['+'+target_category], port=self.teacher_port, immediately=self.immediately)
             out_category_items = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count-category_item_count,
-                                               target_category=['-'+target_category], port=self.teacher_port)
+                                               target_category=['-'+target_category], port=self.teacher_port, immediately=self.immediately)
             output_items = in_category_items + out_category_items
             random.shuffle(output_items)
         else:
@@ -244,7 +245,7 @@ class SFTDataset(Dataset):
                     'item_count': item_count
                 })
                 output_field_data.update({
-                    'item_list': get_output_text([self.get_item_index(target_item)])
+                    'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
                 })
             elif task in ['SFTTestSeqRanking']:
                 item_count = self.args.topk
@@ -258,7 +259,7 @@ class SFTDataset(Dataset):
                     'candidate_items': ranking_candidate
                 })
                 output_field_data.update({
-                    'item_list': get_output_text([self.get_item_index(target_item)])
+                    'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
                 })
             elif task in ['SFTTestItemCount']:
                 item_count = self.args.topk + 1 + idx % 5
@@ -267,7 +268,7 @@ class SFTDataset(Dataset):
                     'item_count': item_count
                 })
                 output_field_data.update({
-                    'item_list': get_output_text([self.get_item_index(target_item)])
+                    'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
                 })
             elif task in ["SFTPersonalControlRec"]:
                 if random.random() > 0.5:
@@ -276,7 +277,7 @@ class SFTDataset(Dataset):
                     max_count = min(self.args.topk, len(self.category2item[target_category]))
                 else:
                     intention_group, d = Intention_minus_group, '-'
-                    SASRec_output = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
+                    SASRec_output = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port, immediately=self.immediately)
                     target_category = random.choice(self.find_maximum_category(SASRec_output, target_item))
                     max_count = min(self.args.topk, len(self.metas) - len(self.category2item[target_category]))
                 item_count = random.choice(range(max_count))+1 if task == "SFTPersonalControlRec" else 1
@@ -298,10 +299,9 @@ class SFTDataset(Dataset):
                 })
             elif task in ["SFT+TestPersonalControlRec", "SFT-TestPersonalControlRec"]:
                 if self.mode == 'test':
-                    SeqRec_item_list = self.SFTTestSeqRec_Result[user]
-                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in SeqRec_item_list]
+                    item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.SFTTestSeqRec_Result[user]]
                 else:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port, immediately=self.immediately)
                 if task == "SFT+TestPersonalControlRec":
                     target_category = self.item2category.get(target_item)[-1]
                     intention_group = Intention_plus_group
@@ -318,7 +318,7 @@ class SFTDataset(Dataset):
                     'SeqRec_Result': item_list
                 })
                 output_field_data.update({
-                    'item_list': get_output_text([self.get_item_index(target_item)])
+                    'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
                 })
 
             elif task == "SFTPersonalCategoryRate":
@@ -349,7 +349,7 @@ class SFTDataset(Dataset):
                 if self.mode == 'test':
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.SFTTestSeqRec_Result[user]]
                 else:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port)
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], self.args.topk, port=self.teacher_port, immediately=self.immediately)
                 if 'LP1' in task or 'LP' in task:
                     target_category = self.find_maximum_category(item_list, target_item)[-1]
                 else:
@@ -365,7 +365,7 @@ class SFTDataset(Dataset):
                     'SeqRec_Result': item_list,
                 })
                 output_field_data.update({
-                    'item_list': get_output_text([self.get_item_index(target_item)])
+                    'item_list': get_output_text([self.get_item_index(target_item)], '', idx=False)
                 })
 
         elif task in ["SFTControlRec", "SFTControlRec_re"]:
@@ -376,7 +376,7 @@ class SFTDataset(Dataset):
                 })
                 output_field_data.update({
                     'item': self.get_item_index(target_item),
-                    'target_category': random.choice(self.item2category[target_item]),
+                    'target_category': random.choice(self.item2category[target_item])+self.tokenizer.eos_token,
                 })
             else:
                 if random.random() > 0.5:
@@ -450,7 +450,7 @@ class SFTDataset(Dataset):
                     assert input_data[idx+1]['from'] == 'gpt'
                     chat_gpt_conv.append_message(chat_gpt_conv.roles[1], input_data[idx+1]['value'])
                 input_text = chat_gpt_conv.get_prompt()
-                output_text = scg_data[chat_end_idx+1]['value']+self.tokenizer.eos_token
+                output_text = scg_data[chat_end_idx+1]['value']
             else:
                 raise NotImplementedError
             out_dict = {
