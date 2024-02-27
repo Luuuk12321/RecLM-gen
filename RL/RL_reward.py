@@ -1,10 +1,11 @@
 import math
 import numpy as np
 
+from Base.Base_reward import BaseRewardModel, RewardOutput
 from Utils.Utils import *
 
 
-class RewardModel:
+class RewardModel(BaseRewardModel):
     def __init__(self, args, tokenizer):
         super().__init__()
         assert args.data_path is not None
@@ -26,6 +27,12 @@ class RewardModel:
             'item': {_: RunningMoments() for _ in self.args.RL_train_tasks.split(',')},
             'list': RunningMoments()
         }
+
+    def ranking_score_func(self, idx):
+        if 'NR-9' in self.args.model_name:
+            return 1.0-idx/len(self.metas)      # NR-9
+        else:
+            return 1.0/math.log2(idx+2)         # NR-8
 
     def reward_calculate(self, task, input_field_data, title_list):
         ranking_score_frac, task_score_frac = self.args.reward_alpha, 1.0-self.args.reward_alpha            # NR-13
@@ -189,10 +196,18 @@ class RewardModel:
         # res = [list_reward*10, item_reward*2]    # NR-21
         return res
 
-    def get_reward(self, batch, output_title_list):
+    def get_reward(self, batch, output_title_list, only_reward=False) -> RewardOutput:
+        """
+        :param batch: Got by collate_fn, which contains everything of 'bs' train samples useful for reward calculation.
+        :param output_title_list: The type is list[str] with number of 'sample_num*bs'.
+        :param only_reward: whether return only rewards in RewardOutput.
+        :return: RewardOutput
+        """
         task, input_text, input_field_data = batch['task']*self.args.sample_num, batch['input_text']*self.args.sample_num, batch['input_field_data']*self.args.sample_num
         reward_data = [self.reward_calculate(t, ifd, tl) for t, ifd, tl in zip(task, input_field_data, output_title_list)]
         item_reward, list_reward = [rd[0] for rd in reward_data], [rd[1] for rd in reward_data]
+        if only_reward:
+            return RewardOutput(reward=list_reward)
         _output_text = [get_output_text(tl, '\n'+self.tokenizer.eos_token, idx=self.args.idx) for tl in output_title_list]
         complete_text = [get_complete_text(it, ot) for it, ot in zip(input_text, _output_text)]
         complete_data = side_tokenizer(complete_text,
@@ -223,15 +238,4 @@ class RewardModel:
                     _item_reward[idx] /= score_scaling_factor
                 total_reward[idx][complete_data['input_ids'][idx] == 13] += _item_reward[idx]
 
-        return complete_data, action_mask, total_reward, item_reward, list_reward
-
-    def get_item_list_reward(self, task, input_field_data, title_list):
-        reward_data = [self.reward_calculate(t, ifd, tl) for t, ifd, tl in zip(task, input_field_data, title_list)]
-        item_reward, list_reward = [rd[0] for rd in reward_data], [rd[1] for rd in reward_data]
-        return item_reward, list_reward
-
-    def ranking_score_func(self, idx):
-        if 'NR-9' in self.args.model_name:
-            return 1.0-idx/len(self.metas)      # NR-9
-        else:
-            return 1.0/math.log2(idx+2)         # NR-8
+        return RewardOutput(complete_data=complete_data, action_mask=action_mask, total_reward=total_reward, reward=list_reward)

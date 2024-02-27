@@ -4,9 +4,12 @@ from accelerate.utils import set_seed, DistributedDataParallelKwargs
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
+from torch.utils.data import DataLoader
+from tqdm import tqdm
 from transformers import get_polynomial_decay_schedule_with_warmup, LogitsProcessorList, StoppingCriteriaList, MinLengthLogitsProcessor, \
     TopKLogitsWarper, MaxLengthCriteria, TemperatureLogitsWarper
 
+from Base.Base_dataset import BaseDataset
 from RL.RL_reward import RewardModel
 from Utils.Utils import *
 from Base.Base_model import BaseModel
@@ -182,14 +185,6 @@ class BaseTrainer(nn.Module):
         # output_dict = [{'index': j, 'output_text': output_text[i*bs+j]} for i in range(self.args.sample_num) for j in range(bs)]
         return output_text
 
-    def get_ppo_reward(self, batch, output_title_list):
-        """
-        :param batch: Got by collate_fn, which contains everything of 'bs' train samples useful for reward calculation.
-        :param output_title_list: The type is list[str] with number of 'sample_num*bs'.
-        :return:
-        """
-        return self.reward_model.get_reward(batch, output_title_list)
-
     @torch.no_grad()
     @eval_decorator
     def PPO_process_batch(self, complete_data, action_mask, total_reward):
@@ -354,10 +349,10 @@ class BaseTrainer(nn.Module):
                 ppo_stat['training/action_clip_frac'] += float(action_clip_frac)
                 ppo_stat['training/critic_clip_frac'] += float(critic_clip_frac)
 
+            policy_kl = self.accelerator.reduce(policy_kl, reduction='mean')
             if self.accelerator.is_main_process:
                 print(f"Batch: {self.sample_batch} | Epoch: {epoch} | backward_step: {self.backward_step} | "
                       f"RL_lr: {self.lr_scheduler.get_lr()[0]:.7f} | policy_kl: {policy_kl:.6f}")
-            policy_kl = self.accelerator.reduce(policy_kl, reduction='mean')
             if policy_kl > self.args.policy_kl_threshold:
                 break
             np.random.shuffle(self.memories)
@@ -379,6 +374,127 @@ class BaseTrainer(nn.Module):
             self.tokenizer.save_pretrained(f'{self.args.output}RL_Step{train_step}')
         else:
             raise NotImplementedError
+
+    def dataset_prepare(self):
+        self.train_data = BaseDataset(self.args, self.tokenizer, 'train')
+        self.val_data = BaseDataset(self.args, self.tokenizer, 'val')
+        self.train_loader = DataLoader(self.train_data, batch_size=self.args.batch_size, shuffle=True, collate_fn=self.train_data.collate_fn)
+        self.val_loader = DataLoader(self.val_data, batch_size=self.args.val_batch_size, shuffle=False, collate_fn=self.val_data.collate_fn, drop_last=False)
+
+        self.prepare(self.train_loader, self.val_loader)
+
+    def SFT_train(self):
+        best_val_loss = float('inf')
+        if self.args.dry:
+            best_val_loss = self.SFT_val_loss(0)
+        for epoch in range(1, self.args.epoch+1):
+            pbar = tqdm(total=len(self.train_loader), ncols=210, disable=not self.accelerator.is_local_main_process)
+            self.train()
+            for step_i, batch in enumerate(self.train_loader):
+                batch = self.SFT_train_batch(batch)
+
+                if self.accelerator.sync_gradients:
+                    pbar.update(self.args.gradient_accumulation_steps)
+            pbar.close()
+
+            self.accelerator.wait_for_everyone()
+            if self.accelerator.is_main_process:
+                self.actor_critic.save_parameters(f"Epoch{epoch:02d}")
+            if epoch < self.args.val_epoch:
+                continue
+            val_loss = self.SFT_val_loss(epoch)
+            if val_loss < best_val_loss and self.accelerator.is_main_process:
+                best_val_loss = val_loss
+                self.actor_critic.save_parameters("BEST_EVAL_LOSS")
+
+    def SFT_val_loss(self, epoch: int):
+        torch.cuda.empty_cache()
+        total_loss = 0.0
+        total_count = 0
+        pbar = tqdm(total=len(self.val_loader), ncols=200, disable=not self.accelerator.is_main_process)
+        for step_i, batch in enumerate(self.val_loader):
+            labels = batch['complete_label_ids']
+            results = self.actor_critic.forward(scope=self.actor_critic.actor_lora_scope, **batch['complete_text_data'])
+            loss = self.SFT_Loss(results.logits, labels).detach()
+            total_loss += loss.sum()
+            total_count += loss.shape[0]
+            pbar.update(1)
+
+        val_loss = total_loss/total_count
+        if self.accelerator.is_main_process:
+            print(f'Epoch {epoch} | SFT_Val_Loss: {val_loss:.4f}\n')
+        return val_loss
+
+    def SFT_val_inference(self, epoch: int):
+        pass
+
+    def RL_train(self):
+        best_val_reward = -float('inf')
+        if self.args.dry and self.args.lr > 0:
+            self.RL_val(0)
+        for eps in range(self.args.num_episodes):
+            pbar = tqdm(total=len(self.train_loader), ncols=150, disable=not self.accelerator.is_main_process)
+            for batch in self.train_loader:
+                self.accelerator.wait_for_everyone()
+                self.sample_batch += 1
+
+                # sampling train data
+                output_text = self.RL_sample_batch(batch)
+
+                # get reward from reward model
+                output_reward = self.reward_model.get_reward(batch, output_text)
+                complete_data, action_mask, total_reward = output_reward.complete_data, output_reward.action_mask, output_reward.total_reward
+                # process ppo data
+
+                self.PPO_process_batch(complete_data, action_mask, total_reward)
+
+                pbar.set_description(f'RL learning in episode: {eps} | sample_batch: {self.sample_batch} | example: {len(self.memories)} | '
+                                     f'max_length: {complete_data["input_ids"].shape[1]}')
+                pbar.update(1)
+
+                if self.sample_batch % self.args.learn_batch == 0 and self.args.lr > 0:
+                    # ppo learning
+                    self.lr_scheduler.step()
+                    ppo_stat = self.learn_PPO()
+                    # logging ppo stat
+                    ppo_stat = sync_dict(self.accelerator, ppo_stat)
+                    if self.accelerator.is_main_process:
+                        for k, v in ppo_stat.items():
+                            self.writer.add_scalar(k, v / ppo_stat['training/backward_step'], self.sample_batch)
+                    self.memories.clear()
+
+                if self.sample_batch % self.args.val_save_step == 0:
+                    if self.args.lr > 0:
+                        if self.accelerator.is_main_process:
+                            self.actor_critic.save_parameters(f'{self.sample_batch}step')
+                        val_reward = self.RL_val(self.sample_batch)
+                        if val_reward > best_val_reward and self.accelerator.is_main_process:
+                            best_val_reward = val_reward
+                            self.actor_critic.save_parameters("BEST_EVAL_REWARD")
+
+            pbar.close()
+        print('RL training complete')
+
+    def RL_val(self, step: int):
+        pbar = tqdm(total=len(self.val_loader), ncols=150, disable=not self.accelerator.is_main_process)
+        total_reward = 0.0
+        total_count = 0
+        for step_i, batch in enumerate(self.val_loader):
+            self.accelerator.wait_for_everyone()
+            input_ids_length = batch['input_data']['input_ids'].shape[1]
+            val_model = self.actor_critic.base_model if step == 0 else self.actor_critic.actor_model
+            output_ids = val_model.greedy_search(**batch['input_data'], stopping_criteria=self.stopping_criteria)
+            output_text = self.tokenizer.batch_decode(output_ids[:, input_ids_length:], skip_special_tokens=True)
+
+            output_reward = self.reward_model.get_reward(batch, output_text, only_reward=True)
+            reward = output_reward.reward
+            total_reward += sum(reward)
+            total_count += len(reward)
+            pbar.update(1)
+
+        val_reward = total_reward/total_count
+        print(f'Step {step} | RL_Val_Reward: {val_reward:.4f}\n')
+        return val_reward
 
 
 if __name__ == '__main__':

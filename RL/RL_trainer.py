@@ -11,13 +11,19 @@ from Base.Base_dataset import BaseDataset
 class RLTrainer(BaseTrainer):
     def __init__(self, args):
         super(RLTrainer, self).__init__(args)
-        self.args = args
+        self.title2item = None
+        self.item2category = None
+        self.metas = None
+        self.category2item = None
 
         self.writer = None
         if self.accelerator.is_main_process:
             self.writer = SummaryWriter(log_dir=f'logs/RL_train/{self.args.model_name}', flush_secs=30)
 
-        # dataset process
+        self.actor_critic.load_parameters(self.args.RL_load)
+        self.dataset_prepare()
+
+    def dataset_prepare(self):
         self.category2item = load_pickle(self.args.data_path + 'category.pickle')
         self.metas = load_pickle(self.args.data_path + 'meta.pickle')
         self.item2category = {}
@@ -34,11 +40,11 @@ class RLTrainer(BaseTrainer):
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 print(f'computing RL train, val datum info')
-            if self.args.train_data_file:             # from generated static dataset file
+            if self.args.train_data_file:  # from generated static dataset file
                 self.train_data = BaseDataset(self.args, self.tokenizer, 'train')
             if self.args.val_data_file:
                 self.val_data = BaseDataset(self.args, self.tokenizer, 'val')
-            if self.args.data_path and not self.train_data and not self.val_data:           # dynamic fetched from raw dataset
+            if self.args.data_path and not self.train_data and not self.val_data:  # dynamic fetched from raw dataset
                 TaskTemplate = {_: Train_task_group_mapping[_] for _ in self.args.RL_train_tasks.split(',')}
                 TaskNum = {_: 1 for _ in self.args.RL_train_tasks.split(',')}
                 ValTaskTemplate = {_: Val_task_group_mapping[_.split('_')[0]] for _ in self.args.RL_val_tasks.split(',')}
@@ -56,14 +62,14 @@ class RLTrainer(BaseTrainer):
 
         self.train_loader = DataLoader(self.train_data, batch_size=self.args.batch_size, shuffle=True, collate_fn=self.train_data.collate_fn)
         self.val_loader = DataLoader(self.val_data, batch_size=self.args.val_batch_size, shuffle=False, collate_fn=self.val_data.collate_fn, drop_last=False)
+
         self.prepare(self.train_loader, self.val_loader)
 
-        self.actor_critic.load_parameters(self.args.RL_load)
-
     def RL_train(self):
+        best_val_reward = -float('inf')
         metrics_dict = Metrics(['RLTotal']+self.args.RL_train_tasks.split(','), self.args.topk, self.category2item, self.title2item, self.accelerator)
         if self.args.dry and self.args.lr > 0:
-            self.RL_val(0)
+            best_val_reward = self.RL_val(0)
         for eps in range(self.args.num_episodes):
             pbar = tqdm(total=len(self.train_loader), ncols=150, disable=not self.accelerator.is_main_process)
             for batch in self.train_loader:
@@ -84,7 +90,18 @@ class RLTrainer(BaseTrainer):
                     output_title_list = [vague_map(_, self.title2item) for _ in output_title_list]
 
                 # get reward
-                complete_data, action_mask, total_reward, item_reward, list_reward = self.get_ppo_reward(batch, output_title_list)
+                output_reward = self.reward_model.get_reward(batch, output_title_list)
+                (
+                    complete_data,
+                    action_mask,
+                    total_reward,
+                    list_reward
+                ) = (
+                    output_reward.complete_data,
+                    output_reward.action_mask,
+                    output_reward.total_reward,
+                    output_reward.reward
+                )
                 # process ppo data
                 self.PPO_process_batch(complete_data, action_mask, total_reward)
 
@@ -132,10 +149,13 @@ class RLTrainer(BaseTrainer):
                     if self.args.lr > 0:
                         if self.accelerator.is_main_process:
                             self.actor_critic.save_parameters(f'{self.sample_batch}step')
-                        self.RL_val(self.sample_batch)
+                        val_reward = self.RL_val(self.sample_batch)
+                        if val_reward > best_val_reward and self.accelerator.is_main_process:
+                            best_val_reward = val_reward
+                            self.actor_critic.save_parameters("BEST_EVAL_REWARD")
 
             pbar.close()
-            print('RL training complete')
+        print('RL training complete')
 
     @torch.no_grad()
     @eval_decorator
@@ -161,7 +181,8 @@ class RLTrainer(BaseTrainer):
 
             # record
             output_labels = [[__ for __ in _.strip().split('\n')] for _ in batch['output_text']]
-            item_reward, list_reward = self.reward_model.get_item_list_reward(batch['task'], batch['input_field_data'], output_title_list)
+            output_reward = self.reward_model.get_reward(batch, output_title_list, only_reward=True)
+            list_reward = output_reward.reward
             for i, task in enumerate(batch['task']):
                 metrics_dict.add_sample(task, batch['input_field_data'][i], output_title_list[i], output_labels[i], list_reward[i])
             pbar.update(1)
@@ -204,6 +225,7 @@ class RLTrainer(BaseTrainer):
             self.writer.add_scalar(f'valuating/Total_NonExist_rate', _non_exist_rate / len(sync_metrics_dict), step)
             self.writer.add_scalar(f'valuating/Total_Repeat_rate', _repeat_rate / len(sync_metrics_dict), step)
             self.writer.add_scalar(f'valuating/Total_Correct_count', _correct_count / len(sync_metrics_dict), step)
+        return _reward_sum/len(sync_metrics_dict)
 
     def RL_val_path(self):
         val_steps = {int(_[:-13]): os.path.join(self.args.output, _[:-4]) for _ in os.listdir(self.args.output) if _.endswith('.pth')}

@@ -13,13 +13,20 @@ from Utils.Utils import *
 class SFTTrainer(BaseTrainer):
     def __init__(self, args):
         super(SFTTrainer, self).__init__(args)
+        self.title2item = None
+        self.item2category = None
+        self.metas = None
+        self.category2item = None
 
         self.writer = None
         if self.accelerator.is_main_process:
             name = self.args.output.split('snap/')[-1]
             self.writer = SummaryWriter(log_dir=f'logs/SFT_train/{self.args.SFT_train_tasks}/{name}', flush_secs=30)
 
-        # dataset process
+        self.start_epoch = self.actor_critic.load_parameters(self.args.SFT_load)
+        self.dataset_prepare()
+
+    def dataset_prepare(self):
         self.category2item = load_pickle(self.args.data_path + 'category.pickle')
         self.metas = load_pickle(self.args.data_path + 'meta.pickle')
         self.item2category = {}
@@ -60,7 +67,6 @@ class SFTTrainer(BaseTrainer):
         self.train_loader = DataLoader(self.train_data, batch_size=self.args.batch_size, shuffle=True, collate_fn=self.train_data.collate_fn)
         self.val_loader = DataLoader(self.val_data, batch_size=self.args.val_batch_size, shuffle=False, collate_fn=self.val_data.collate_fn, drop_last=False)
 
-        self.start_epoch = self.actor_critic.load_parameters(self.args.SFT_load)
         self.prepare(self.train_loader, self.val_loader)
 
     def SFT_train(self):
@@ -104,14 +110,14 @@ class SFTTrainer(BaseTrainer):
                 self.actor_critic.save_parameters(f"Epoch{epoch:02d}")
             if epoch < self.args.val_epoch:
                 continue
-            val_loss = self.SFT_val_loss(self.start_epoch) if isinstance(self.val_data, BaseDataset) else self.SFT_val_inference(self.start_epoch)
+            val_loss = self.SFT_val_loss(epoch) if isinstance(self.val_data, BaseDataset) else self.SFT_val_inference(epoch)
             if val_loss < best_val_loss and self.accelerator.is_main_process:
                 best_val_loss = val_loss
                 self.actor_critic.save_parameters("BEST_EVAL_LOSS")
 
     @torch.no_grad()
     @eval_decorator
-    def SFT_val_loss(self, epoch):
+    def SFT_val_loss(self, epoch: int):
         torch.cuda.empty_cache()
         task_loss = {_: 0.0 for _ in self.args.SFT_val_tasks.split(',')}
         task_count = {_: 1e-10 for _ in self.args.SFT_val_tasks.split(',')}
@@ -144,7 +150,7 @@ class SFTTrainer(BaseTrainer):
 
     @torch.no_grad()
     @eval_decorator
-    def SFT_val_inference(self, epoch):
+    def SFT_val_inference(self, epoch: int):
         torch.cuda.empty_cache()
         stopping_criteria = StoppingCriteriaList([MaxLengthCriteria(max_length=self.args.max_token_length + self.args.gen_max_length)])
         metrics_dict = Metrics(self.args.SFT_val_tasks.split(','), self.args.topk, self.category2item, self.title2item, self.accelerator)
