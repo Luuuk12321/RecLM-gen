@@ -27,7 +27,7 @@ def create_dataloader(data, batch_size, shuffle=True, device=None, **kwargs):
 
 
 class RLDataset(Dataset):
-    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False):
+    def __init__(self, args, task_template, task_num, data, tokenizer, mode='train', saving=False, immediately=True):
         self.args = args
         self.task_template = task_template
         self.task_num = task_num
@@ -35,25 +35,16 @@ class RLDataset(Dataset):
         self.tokenizer = tokenizer
         self.teacher_port = self.args.teacher_port
         self.saving = saving
+        self.immediately = immediately
 
         self.metas = data['metas']
+        self.title2item = data['title2item']
         self.sequential = data['sequential']
-        self.category2item = data['category']
+        self.category2item = data['category2item']
+        self.item2category = data['item2category']
         self.ranking_candidate = data['ranking_candidate']
         if 'RLSeqRec_Result' in data:
             self.RLSeqRec_Result = {u: data['RLSeqRec_Result'][idx][1] for idx, u in enumerate(self.sequential)}
-
-        self.item2category = {}
-        for c in self.category2item:
-            for i in self.category2item[c]:
-                if self.item2category.get(i) is None:
-                    self.item2category[i] = []
-                self.item2category[i].append(c)
-        self.title2item = {}
-        for _ in self.metas:
-            if self.title2item.get(self.metas[_][self.args.item_index]) is None:
-                self.title2item[self.metas[_][self.args.item_index]] = []
-            self.title2item[self.metas[_][self.args.item_index]].append(_)
 
         # self.title = [__[self.args.item_index] for _, __ in self.metas.items()]
         # self.decoder_start_token_id = self.tokenizer.bos_token_id
@@ -219,7 +210,7 @@ class RLDataset(Dataset):
 
             if task in ["RL+PersonalControlRec"]:
                 if self.mode in ['train', 'val']:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port, immediately=self.immediately)
                 else:
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
 
@@ -238,7 +229,7 @@ class RLDataset(Dataset):
                 })
             elif task in ["RL-PersonalControlRec"]:
                 if self.mode in ['train', 'val']:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port, immediately=self.immediately)
                 else:
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
 
@@ -258,7 +249,7 @@ class RLDataset(Dataset):
                 })
             elif task.startswith("RLPersonalCategoryRate"):
                 if self.mode in ['train', 'val']:
-                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port)
+                    item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port, immediately=self.immediately)
                 else:
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
 
@@ -282,7 +273,7 @@ class RLDataset(Dataset):
                 })
 
                 if self.mode != 'train':
-                    p = int(task.split('_')[-1]/10)
+                    p = int(int(task.split('_')[-1])/10)
                     output_category_item_count = int(p*item_count / 100)
                 else:
                     category_item_count = min(len(self.category2item[target_category]), item_count)

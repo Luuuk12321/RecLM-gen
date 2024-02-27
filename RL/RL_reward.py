@@ -27,8 +27,6 @@ class RewardModel:
             'list': RunningMoments()
         }
 
-    @torch.no_grad()
-    @eval_decorator
     def reward_calculate(self, task, input_field_data, title_list):
         ranking_score_frac, task_score_frac = self.args.reward_alpha, 1.0-self.args.reward_alpha            # NR-13
         item_count = input_field_data['item_count']
@@ -187,7 +185,7 @@ class RewardModel:
         # res = [list_reward, item_reward*0.5]    # NR-13
         # res = [list_reward, item_reward*0.3]    # NR-14, 15
         # res = [list_reward*100, item_reward]    # NR-16
-        res = [item_reward.tolist(), float(list_reward*10)]    # NR-20
+        res = [item_reward, float(list_reward*10)]    # NR-20
         # res = [list_reward*10, item_reward*2]    # NR-21
         return res
 

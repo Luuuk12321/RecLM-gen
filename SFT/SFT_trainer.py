@@ -19,6 +19,20 @@ class SFTTrainer(BaseTrainer):
             name = self.args.output.split('snap/')[-1]
             self.writer = SummaryWriter(log_dir=f'logs/SFT_train/{self.args.SFT_train_tasks}/{name}', flush_secs=30)
 
+        # dataset process
+        self.category2item = load_pickle(self.args.data_path + 'category.pickle')
+        self.metas = load_pickle(self.args.data_path + 'meta.pickle')
+        self.item2category = {}
+        for c in self.category2item:
+            for i in self.category2item[c]:
+                if self.item2category.get(i) is None:
+                    self.item2category[i] = []
+                self.item2category[i].append(c)
+        self.title2item = {}
+        for _ in self.metas:
+            if self.title2item.get(self.metas[_][self.args.item_index]) is None:
+                self.title2item[self.metas[_][self.args.item_index]] = []
+            self.title2item[self.metas[_][self.args.item_index]].append(_)
         with self.accelerator.main_process_first():
             if self.accelerator.is_main_process:
                 print(f'computing SFT train, val datum info')
@@ -32,8 +46,10 @@ class SFTTrainer(BaseTrainer):
                 ValTaskTemplate = {_: Val_task_group_mapping[_.split('_')[0]] for _ in self.args.SFT_val_tasks.split(',')}
                 ValTaskNum = {_: 1 for _ in self.args.SFT_val_tasks.split(',')}
                 data = {
-                    'category': load_pickle(self.args.data_path + 'category.pickle'),
-                    'metas': load_pickle(self.args.data_path + 'meta.pickle'),
+                    'category2item': self.category2item,
+                    'item2category': self.item2category,
+                    'metas': self.metas,
+                    'title2item': self.title2item,
                     'sequential': load_pickle(self.args.data_path + 'sequential.pickle'),
                     'ranking_candidate': load_pickle(self.args.data_path + 'ranking_candidate.pickle'),
                     'share_chat_gpt': load_pickle('data/dataset/share_chat_gpt2.pickle'),
@@ -99,7 +115,8 @@ class SFTTrainer(BaseTrainer):
         torch.cuda.empty_cache()
         task_loss = {_: 0.0 for _ in self.args.SFT_val_tasks.split(',')}
         task_count = {_: 1e-10 for _ in self.args.SFT_val_tasks.split(',')}
-        for step_i, batch in tqdm(enumerate(self.val_loader), ncols=200, disable=not self.accelerator.is_local_main_process):
+        pbar = tqdm(total=len(self.val_loader), ncols=200, disable=not self.accelerator.is_main_process)
+        for step_i, batch in enumerate(self.val_loader):
             if self.accelerator.is_main_process and step_i % 10000 == 0:
                 print(batch['complete_text'][0])
                 print(batch['complete_text_data']['input_ids'][0])
@@ -111,6 +128,7 @@ class SFTTrainer(BaseTrainer):
             for idx, task in enumerate(batch['task']):
                 task_loss[task] += (float(loss[idx]))
                 task_count[task] += 1
+            pbar.update(1)
 
         # logging
         task_loss = sync_dict(self.accelerator, task_loss)
@@ -129,8 +147,9 @@ class SFTTrainer(BaseTrainer):
     def SFT_val_inference(self, epoch):
         torch.cuda.empty_cache()
         stopping_criteria = StoppingCriteriaList([MaxLengthCriteria(max_length=self.args.max_token_length + self.args.gen_max_length)])
-        metrics_dict = Metrics(self.args.SFT_val_tasks.split(','), self.args.topk, self.train_data.category2item, self.train_data.title2item, self.accelerator)
-        for step_i, batch in tqdm(enumerate(self.val_loader), ncols=200, disable=not self.accelerator.is_local_main_process):
+        metrics_dict = Metrics(self.args.SFT_val_tasks.split(','), self.args.topk, self.category2item, self.title2item, self.accelerator)
+        pbar = tqdm(total=len(self.val_loader), ncols=200, disable=not self.accelerator.is_main_process)
+        for step_i, batch in enumerate(self.val_loader):
             if self.accelerator.is_main_process and step_i % 1000 == 0:
                 print(batch['input_text'][0])
                 print(batch['input_data']['input_ids'][0])
@@ -155,6 +174,7 @@ class SFTTrainer(BaseTrainer):
             # record
             for i in range(bs):
                 metrics_dict.add_sample(batch['task'][i], batch['input_field_data'][i], output_title_list[i], output_labels[i])
+            pbar.update(1)
 
         # logging
         self.accelerator.wait_for_everyone()

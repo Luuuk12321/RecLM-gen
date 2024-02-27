@@ -18,8 +18,10 @@ class SFTDataset(Dataset):
         self.saving = saving
         self.immediately = immediately
 
-        self.category2item = data['category']
+        self.item2category = data['item2category']
+        self.category2item = data['category2item']
         self.metas = data['metas']
+        self.title2item = data['title2item']
         self.sequential = data['sequential']
         self.share_chat_gpt = data['share_chat_gpt']
         self.ranking_candidate = data['ranking_candidate']
@@ -32,19 +34,6 @@ class SFTDataset(Dataset):
             self.SFTTestSeqRec_Result = {u: data['SFTTestSeqRec_Result'][idx].get('SFTTestSeqRec_output_title_list') or [] for idx, u in enumerate(self.sequential) if idx < len(data['SFTTestSeqRec_Result'])}
         if 'SFTTestSeqRec_Candidate' in data:
             self.SFTTestSeqRec_Candidate = data['SFTTestSeqRec_Candidate']
-
-        self.item2category = {}
-        for c in self.category2item:
-            for i in self.category2item[c]:
-                if self.item2category.get(i) is None:
-                    self.item2category[i] = []
-                self.item2category[i].append(c)
-
-        self.title2item = {}
-        for _ in self.metas:
-            if self.title2item.get(self.metas[_][self.args.item_index]) is None:
-                self.title2item[self.metas[_][self.args.item_index]] = []
-            self.title2item[self.metas[_][self.args.item_index]].append(_)
 
         self.datum_info = []
         self.complete_datum_info = []
