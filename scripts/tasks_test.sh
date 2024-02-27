@@ -20,12 +20,12 @@ else
 fi
 
 python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestSeqRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
-#python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestSeqRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 5 --port ${PORT}
+python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestSeqRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 5 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestSeqRanking --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 5 --candidate_num 10 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestSeqRanking --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 3 --candidate_num 10 --port ${PORT}
-#python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT+TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
+python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT+TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT+TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 5 --port ${PORT}
-#python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT-TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
+python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT-TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFT-TestPersonalControlRec --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 5 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestPersonalCategoryRateLP_30 --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
 #python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestPersonalCategoryRateLP_50 --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
@@ -41,4 +41,4 @@ else
 #    python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestPersonalCategoryRateMP_20 --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
     python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestPersonalCategoryRateMP_30 --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
 fi
-#python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestItemCount --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}
+python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task SFTTestItemCount --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --port ${PORT}

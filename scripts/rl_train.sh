@@ -16,7 +16,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
   --RL_actor_lora_r 4 \
   --RL_critic_lora_r 4 \
   --RL_train_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP \
-  --RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP,RLItemCount \
+  --RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP_20,RLPersonalCategoryRateMP_30,RLPersonalCategoryRateEP_50,RLItemCount \
   --backup_ip 0.0.0.0 \
   --lr 0.000005 \
   --lora_drop 0.0 \
@@ -35,4 +35,5 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
   --whiten_reward \
   --num_episodes 2 \
   --reward_alpha 0.5 \
-  --fine_grain_reward
+  --fine_grain_reward \
+  --distributed

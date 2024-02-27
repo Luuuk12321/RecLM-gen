@@ -26,4 +26,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 nohup accelerate launch --num_processes 4 --gpu_ids
   --FA2 \
   --llama2_chat_template \
   --idx \
+  --distributed \
   &> snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/output.log
