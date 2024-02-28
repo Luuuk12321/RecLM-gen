@@ -1,13 +1,13 @@
+import torch
 from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from tqdm import tqdm
 from transformers import StoppingCriteriaList, MaxLengthCriteria
-
-from SFT.SFT_dataset import SFTDataset, Train_task_group_mapping, Val_task_group_mapping
-from Base.Base_trainer import BaseTrainer
-from Base.Base_dataset import BaseDataset
-from Utils.Metrics import Metrics
-from Utils.Utils import *
+from sft.dataset import SFTDataset, Train_task_group_mapping, Val_task_group_mapping
+from base.trainer import BaseTrainer
+from base.dataset import BaseDataset
+from utils.metrics import Metrics
+from utils.tools import load_pickle, sync_dict, eval_decorator, vague_map, rm_idx
 
 
 class SFTTrainer(BaseTrainer):

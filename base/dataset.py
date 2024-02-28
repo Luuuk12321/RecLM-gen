@@ -1,6 +1,7 @@
+import copy
+import torch
 from torch.utils.data import Dataset
-
-from Utils.Utils import *
+from utils.tools import load_pickle, get_complete_text, side_tokenizer
 
 
 class BaseDataset(Dataset):

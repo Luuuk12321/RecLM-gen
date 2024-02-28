@@ -1,14 +1,15 @@
 import argparse
 import json
+import os
+import re
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
-
+import requests
 from tqdm import tqdm
-
-from SFT.SFT_dataset import Test_task_group_mapping, SFTDataset
+from sft.dataset import Test_task_group_mapping, SFTDataset
 from param import Config
-from Utils.Metrics import Metrics
-from Utils.Utils import *
+from utils.metrics import Metrics
+from utils.tools import match_idx, rm_idx, vague_map, GPT, load_pickle, save_pickle
 
 headers = {"User-Agent": "Test Client"}
 

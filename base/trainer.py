@@ -1,6 +1,10 @@
+from collections import deque
+import torch.nn.functional as F
 import numpy as np
+import torch
 from accelerate import Accelerator
 from accelerate.utils import set_seed, DistributedDataParallelKwargs
+from einops import rearrange
 from torch import nn
 from torch.nn import CrossEntropyLoss
 from torch.optim import AdamW
@@ -8,11 +12,10 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 from transformers import get_polynomial_decay_schedule_with_warmup, LogitsProcessorList, StoppingCriteriaList, MinLengthLogitsProcessor, \
     TopKLogitsWarper, MaxLengthCriteria, TemperatureLogitsWarper
-
-from Base.Base_dataset import BaseDataset
-from RL.RL_reward import RewardModel
-from Utils.Utils import *
-from Base.Base_model import BaseModel
+from base.dataset import BaseDataset
+from rl.reward import RewardModel
+from utils.tools import masked_mean, whiten, eval_decorator, shift, log_prob, Memory, sync_dict
+from base.model import BaseModel
 
 
 # trainer

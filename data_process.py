@@ -1,14 +1,11 @@
 import random
-import sys
 from concurrent.futures.thread import ThreadPoolExecutor
-
 import numpy as np
 import torch
 import transformers
 from tqdm import tqdm
 from transformers import AutoTokenizer
-
-from Utils.Utils import *
+from utils.tools import load_pickle, save_pickle
 from param import get_args, Config
 
 
@@ -28,7 +25,7 @@ if __name__ == '__main__':
         args.SFT_train_tasks = args.SFT_train_tasks + ',ShareChatGPT'
 
     if args.train_stage in ['SFT']:
-        from SFT.SFT_dataset import SFTDataset, Train_task_group_mapping, Val_task_group_mapping
+        from sft.dataset import SFTDataset, Train_task_group_mapping, Val_task_group_mapping
 
         TaskTemplate = {_: Train_task_group_mapping[_] for _ in args.SFT_train_tasks.split(',')}
         TaskNum = {_: 1 for _ in args.SFT_train_tasks.split(',')}
@@ -57,7 +54,7 @@ if __name__ == '__main__':
         save_pickle(val_datasets, args.data_path+'SFT_dataset_val.pickle')
 
     elif args.train_stage in ['RL']:
-        from RL.RL_dataset import RLDataset, Train_task_group_mapping, Val_task_group_mapping
+        from rl.dataset import RLDataset, Train_task_group_mapping, Val_task_group_mapping
 
         TaskTemplate = {_: Train_task_group_mapping[_] for _ in args.RL_train_tasks.split(',')}
         TaskNum = {_: 1 for _ in args.RL_train_tasks.split(',')}

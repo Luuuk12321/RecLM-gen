@@ -1,10 +1,10 @@
+import copy
 import random
-
+import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-
-from SFT.SFT_templates import *
-from Utils.Utils import *
+from sft.templates import *
+from utils.tools import load_pickle, save_pickle, get_item_list, get_history_text, get_output_text, side_tokenizer, get_complete_text
 
 
 class SFTDataset(Dataset):

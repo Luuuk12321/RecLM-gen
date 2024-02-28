@@ -1,8 +1,6 @@
 import copy
-
 import math
-
-from Utils.Utils import sync_dict, vague_map, load_pickle
+from utils.tools import sync_dict, vague_map
 
 
 def task_register(task):

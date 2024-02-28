@@ -1,10 +1,10 @@
+import os
 from torch.utils.tensorboard import SummaryWriter
-
-from RL.RL_dataset import *
-from Base.Base_trainer import BaseTrainer
-from Utils.Metrics import Metrics
-from Utils.Utils import *
-from Base.Base_dataset import BaseDataset
+from rl.dataset import *
+from base.trainer import BaseTrainer
+from utils.metrics import Metrics
+from base.dataset import BaseDataset
+from utils.tools import rm_idx, vague_map, sync_dict, eval_decorator
 
 
 # RL trainer
@@ -70,7 +70,7 @@ class RLTrainer(BaseTrainer):
         metrics_dict = Metrics(['RLTotal']+self.args.RL_train_tasks.split(','), self.args.topk, self.category2item, self.title2item, self.accelerator)
         if self.args.dry and self.args.lr > 0:
             best_val_reward = self.RL_val(0)
-        for eps in range(self.args.num_episode):
+        for eps in range(self.args.num_episodes):
             if hasattr(self.train_data, "set_epoch"):
                 self.train_data.set_epoch(eps)
             pbar = tqdm(total=len(self.train_loader), ncols=150, disable=not self.accelerator.is_main_process)

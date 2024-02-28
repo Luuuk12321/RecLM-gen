@@ -2,7 +2,6 @@ import copy
 import os.path
 import pickle
 import re
-
 import requests
 import torch
 import torch.nn.functional as F
@@ -10,7 +9,7 @@ from Levenshtein import distance
 from einops import rearrange
 from openai import OpenAI
 from torch.nn.utils.rnn import pad_sequence
-from collections import deque, namedtuple
+from collections import namedtuple
 
 
 def rm_idx(s):

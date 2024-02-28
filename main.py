@@ -1,14 +1,10 @@
 import random
-import sys
-import time
-
 import numpy as np
 import torch
 import transformers
-
-from Base.Base_trainer import BaseTrainer
-from RL.RL_trainer import RLTrainer
-from SFT.SFT_trainer import SFTTrainer
+from base.trainer import BaseTrainer
+from rl.trainer import RLTrainer
+from sft.trainer import SFTTrainer
 from param import Config, get_args
 
 if __name__ == '__main__':
