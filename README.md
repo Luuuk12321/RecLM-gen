@@ -3,6 +3,8 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 
 `ranking_candidate.pickle` is needed, if you need to test reranking task.
 
+**Total dataset is available on this [link](https://drive.google.com/file/d/1zgVqJWfDq5w-sJxrQoQkdBAJOL3GsxkY/view?usp=drive_link).**
+
 ## category.pickle
 `category.pickle` is a dict, the keys are all categories, and value is the item list belonging specific category.
 ```json
