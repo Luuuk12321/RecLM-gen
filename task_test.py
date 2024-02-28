@@ -32,7 +32,7 @@ def quary_vllm(input_text, args):
             "top_p": 0.2,
             "top_k": 5,
         }
-        response = requests.post(f'http://127.0.0.1:{args.port}/generate', headers=headers, json=pload_sample if args.sample else pload_search, stream=False)
+        response = requests.post(f'http://127.0.0.1:{args.teacher_port}/generate', headers=headers, json=pload_sample if args.sample else pload_search, stream=False)
         output_data = json.loads(response.content)
         if 'text' not in output_data:
             continue
@@ -49,7 +49,7 @@ def quary_vllm_openai(input_text, args):
             "temperature": 0.0,
             "max_tokens": args.gen_max_length,
         }
-        response = requests.post(f'http://127.0.0.1:{args.port}/v1/completions', headers=headers, json=pload, stream=False)
+        response = requests.post(f'http://127.0.0.1:{args.teacher_port}/v1/completions', headers=headers, json=pload, stream=False)
         output_data = json.loads(response.content)
         output_text = output_data["choices"][0]['text']
         output = output_text
@@ -146,19 +146,33 @@ if __name__ == "__main__":
     parser.add_argument("--idx", action='store_true')
     parser.add_argument("--sample", action='store_true')
     parser.add_argument("--reprocess", action='store_true')
-    parser.add_argument("--port", type=int, default=13579)
+    parser.add_argument("--teacher_port", type=int, default=13579)
     args = parser.parse_args()
     args.is_main_process = True
     kwargs = vars(args)
     args = Config(**kwargs)
     print(args)
-    gpt = GPT(model_name=args.model_name, port=args.port)
+    gpt = GPT(model_name=args.model_name, port=args.teacher_port)
+
+    category2item = load_pickle(args.data_path + 'category.pickle')
+    metas = load_pickle(args.data_path + 'meta.pickle')
+    item2category = {}
+    for c in category2item:
+        for i in category2item[c]:
+            if item2category.get(i) is None:
+                item2category[i] = []
+            item2category[i].append(c)
+    title2item = {}
+    for _ in metas:
+        if title2item.get(metas[_][args.item_index]) is None:
+            title2item[metas[_][args.item_index]] = []
+        title2item[metas[_][args.item_index]].append(_)
     data = {
-        'category': load_pickle(args.data_path + 'category1.pickle'),
-        'metas': load_pickle(args.data_path + 'meta1.pickle'),
+        'metas': metas,
+        'category2item': category2item,
+        'item2category': item2category,
+        'title2item': title2item,
         'sequential': load_pickle(args.data_path + 'sequential.pickle'),
-        'preference': load_pickle(args.data_path + 'preference.pickle'),
-        'intention': load_pickle(args.data_path + 'intention.pickle'),
         'share_chat_gpt': None,
         'ranking_candidate': load_pickle(args.data_path + 'ranking_candidate.pickle'),
     }
@@ -183,13 +197,6 @@ if __name__ == "__main__":
             _.update(__)
     else:
         test_data_list = _test_data_list
-    # for _ in test_data_list:
-    #     if f'{_["task"]}_output_title_list' in _:
-    #         _[f'{args.SFT_test_task}_output_title_list'] = _[f'{_["task"]}_output_title_list']
-    #         del _[f'{_["task"]}_output_title_list']
-    #     if _['task'] == 'SFTTestPersonalCategoryRate':
-    #         _['task'] = args.SFT_test_task
-    # save_pickle(test_data_list, result_file)
 
     if args.SFT_test_task in ['SFT+TestPersonalControlRec', 'SFT-TestPersonalControlRec'] or args.SFT_test_task.startswith('SFTTestPersonalCategoryRate'):
         remain_test_data_list = [_ for _, __ in zip(test_data_list, data['SFTTestSeqRec_Result'])

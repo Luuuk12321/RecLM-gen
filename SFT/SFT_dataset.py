@@ -50,7 +50,7 @@ class SFTDataset(Dataset):
         return category
 
     def compute_datum_info(self):
-        val_num = self.args.val_num_per_task
+        val_num = self.args.val_num_per_task if hasattr(self.args, 'val_num_per_task') else 0
         val_task_num = 0
         for task, num in self.task_num.items():
             if task in ["SFTSeqRec", "SFTPersonalControlRec", "SFTPersonalCategoryRate", "SFTSeqRecPALR"]:

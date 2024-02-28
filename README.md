@@ -52,12 +52,14 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 ## 1.1. SASRec dataset and model
 Model `sub_movie.pth` in `TeacherModel/saved/`.
 
-Dataset files `sub_movie.inter`, `sub_movie.item`, `category.pickle(same as raw dataset)` in `TeacherModel/dataset/sub_movie/`.
+Dataset files `sub_movie.inter`, `sub_movie.item`, `category.pickle(as same as raw dataset)` in `TeacherModel/dataset/sub_movie/`.
+
+`sub_movie.inter`, `sub_movie.item` is used to train SASRec model in Recbole lib. (from the same data source)
 
 ## 1.2. SASRec Server start
 The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
 
-For dataset prepare, the workers number should be bigger, such as `4`.
+For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
 ```shell
 cd TeacherModel/
 python acil.py sub_movie 12621 0 1
@@ -72,7 +74,7 @@ The `i-th` `List[Dict]` is the train data of the `i-th` epoch.
 
 Each `Dict` is a train sample, which has key `"input_text"` and `"output_text"` at least for traditional SFT.
 
-`"task"` and `"input_field_data"` is used to compute metrics.
+`"task"` and `"input_field_data"` is used to compute metrics for the specific domain.
 ```js
 [
   [ //Epoch 1
@@ -193,7 +195,7 @@ The `i-th` `List[Dict]` is the train data of the `i-th` episode.
 
 Each `Dict` is a train sample, which has key `'input_text'` at least for RL.
 
-`task` and `input_field_data` is used to compute metrics and reward.
+`task` and `input_field_data` is used to compute metrics and reward for the specific domain.
 ```js
 [
   [ //Episode 1
@@ -339,15 +341,6 @@ CUDA_VISIBLE_DEVICES=1 python -m vllm.entrypoints.openai.api_server --port 13579
 
 ## 3.2. VLLM test
 ```shell
-#python task_test.py --SFT_test_task SFTTestSeqRec --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
-#python task_test.py --SFT_test_task SFTTestSeqRec --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 5
-#python task_test.py --SFT_test_task SFTTestSeqRanking --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 5
-#python task_test.py --SFT_test_task SFTTestSeqRanking --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 3
-#python task_test.py --SFT_test_task SFT+TestPersonalControlRec --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
-#python task_test.py --SFT_test_task SFT-TestPersonalControlRec --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
-#python task_test.py --SFT_test_task SFTTestPersonalCategoryRate_30% --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
-#python task_test.py --SFT_test_task SFTTestPersonalCategoryRate_50% --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
-#python task_test.py --SFT_test_task SFTTestPersonalCategoryRate_70% --model_name snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ --llama2_chat_template --idx --topk 10
 ./scripts/tasks_test.sh snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 13579
 ./scripts/tasks_test.sh snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RL_Step7000/ 13579
 ```
