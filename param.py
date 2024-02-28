@@ -42,7 +42,6 @@ def add_args_RL(parser):
     parser.add_argument("--gamma", type=float, default=0.99)
     parser.add_argument("--lam", type=float, default=1.0)
     parser.add_argument("--policy_kl_threshold", type=float, default=0.03)
-    parser.add_argument("--vague_mapping", action='store_true')
     parser.add_argument("--lr_power", type=float, default=2.0)
     parser.add_argument("--learn_batch", type=int, default=2)
     parser.add_argument("--reward_alpha", type=float, default=0.5)
@@ -98,6 +97,7 @@ def add_args(parse=True, **optional_kwargs):
 
     # Inference
     parser.add_argument('--gen_max_length', type=int, default=512, help='训练，及推理生成token的最大长度')
+    parser.add_argument("--vague_mapping", action='store_true')
 
     # Etc.
     parser.add_argument("--dry", action='store_true')
