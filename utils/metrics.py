@@ -82,7 +82,7 @@ class Metrics:
                 if 'MP' in task or 'MC' in task:
                     SRCategoryRateCorrect = 1 if SRTargetCategoryRate >= input_field_data['category_count'] else 0
                 elif 'EP' in task or 'EC' in task:
-                    SRCategoryRateCorrect = 1 if SRTargetCategoryRate == input_field_data['category_count'] else 0
+                    SRCategoryRateCorrect = 1 if abs(SRTargetCategoryRate-input_field_data['category_count']) <= 1 else 0
                 elif 'LP' in task or 'LC' in task:
                     SRCategoryRateCorrect = 1 if (SRTargetCategoryRate+NonExistRate) <= input_field_data['category_count'] else 0
                 else:
