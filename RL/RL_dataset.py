@@ -202,6 +202,7 @@ class RLDataset(Dataset):
                 'user': user,
                 'sub_sequential': sub_sequential,
                 'target_item': target_item,
+                'target_item_title': self.get_item_index(target_item),
                 'target_category': self.item2category[target_item][-1]
             })
             output_field_data.update({
