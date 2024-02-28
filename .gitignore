@@ -3,8 +3,8 @@ data/dataset/steam/*
 data/dataset/sub_movie/*
 data/dataset/share_chat_gpt2.pickle
 
-TeacherModel/dataset/steam/*
-TeacherModel/dataset/sub_movie/*
-TeacherModel/log/*
-TeacherModel/saved/*
+teacher_model/dataset/steam/*
+teacher_model/dataset/sub_movie/*
+teacher_model/log/*
+teacher_model/saved/*
 
