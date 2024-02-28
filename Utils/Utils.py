@@ -12,12 +12,6 @@ from openai import OpenAI
 from torch.nn.utils.rnn import pad_sequence
 from collections import deque, namedtuple
 
-huggingface_proxies = {
-    'http': '172.31.225.67:12621',
-    'https': '172.31.225.67:12621',
-    'ftp': '172.31.225.67:12621'
-}
-
 
 def rm_idx(s):
     return re.sub(r'^(\d+)\. *', '', s, count=1)

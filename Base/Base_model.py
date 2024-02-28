@@ -7,7 +7,7 @@ from einops.layers.torch import Rearrange
 from peft import TaskType, LoraConfig, inject_adapter_in_model, LoraModel
 from torch import nn
 from transformers import T5Config, AutoConfig, AutoTokenizer, T5ForConditionalGeneration, AutoModelForCausalLM, BitsAndBytesConfig
-from Utils.Utils import eval_decorator, shift, huggingface_proxies
+from Utils.Utils import eval_decorator, shift
 
 
 def layer_init(layer, std=2**0.5):
@@ -162,7 +162,7 @@ class BaseModel(nn.Module):       # name
         else:
             config_class = AutoConfig
 
-        config = config_class.from_pretrained(self.args.backbone, proxies=huggingface_proxies if self.args.proxy else None)
+        config = config_class.from_pretrained(self.args.backbone)
         config.dropout_rate = self.args.dropout
         config.dropout = self.args.dropout
         config.attention_dropout = self.args.dropout
@@ -170,10 +170,7 @@ class BaseModel(nn.Module):       # name
         return config
 
     def create_tokenizer(self):
-        tokenizer = AutoTokenizer.from_pretrained(
-            self.args.backbone,
-            proxies=huggingface_proxies if self.args.proxy else None,
-        )
+        tokenizer = AutoTokenizer.from_pretrained(self.args.backbone)
         # tokenizer.add_tokens(['\n'] + [f'<{i+1}>' for i in range(20)])
         tokenizer.pad_token = tokenizer.unk_token
         tokenizer.pad_token_id = tokenizer.unk_token_id
@@ -200,16 +197,14 @@ class BaseModel(nn.Module):       # name
                                                 quantization_config=bnb_config,
                                                 device_map=device,
                                                 torch_dtype=torch.bfloat16,
-                                                use_flash_attention_2=self.args.FA2,
-                                                proxies=huggingface_proxies if self.args.proxy else None
+                                                use_flash_attention_2=self.args.FA2
                                                 )
         else:
             model = model_class.from_pretrained(self.args.backbone,
                                                 config=self.model_config,
                                                 device_map=device,
                                                 torch_dtype=torch.bfloat16,
-                                                use_flash_attention_2=self.args.FA2,
-                                                proxies=huggingface_proxies if self.args.proxy else None
+                                                use_flash_attention_2=self.args.FA2
                                                 )
         model.requires_grad_(False)
         return model

@@ -22,10 +22,7 @@ if __name__ == '__main__':
     np.random.seed(args.seed)
     transformers.set_seed(args.seed)
 
-    tokenizer = AutoTokenizer.from_pretrained(
-        "/home/lws/projects/InstructControllableRec_RLHF/snap/Llama-2-7b-hf-chat/",
-        proxies=huggingface_proxies,
-    )
+    tokenizer = AutoTokenizer.from_pretrained("snap/Llama-2-7b-hf-chat/")
 
     if args.train_stage == 'SFT' and args.share_chat_gpt_ratio > 0.:
         args.SFT_train_tasks = args.SFT_train_tasks + ',ShareChatGPT'

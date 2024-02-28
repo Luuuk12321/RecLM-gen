@@ -35,9 +35,9 @@ if __name__ == '__main__':
                 args.model_name = f'RL_{args.backbone[5:]}Total_init_LM-{args.lm_head}_VM-{args.vague_mapping}_NR-20.1_SN-{args.sample_num}_Q-{args.quantization}_T{len(args.RL_train_tasks.split(","))}'
         args.output = f'{args.output}{args.model_name}/'
 
-    if args.log_to_file:
-        log_file = open(args.output+f'{time.strftime("%Y-%m-%d %Hh_%Mm_%Ss", time.localtime())} {args.train_stage}.log', 'w')
-        sys.stdout = log_file
+    # if args.log_to_file:
+    #     log_file = open(args.output+f'{time.strftime("%Y-%m-%d %Hh_%Mm_%Ss", time.localtime())} {args.train_stage}.log', 'w')
+    #     sys.stdout = log_file
 
     if args.train_stage == 'SFT':
         trainer = SFTTrainer(args)

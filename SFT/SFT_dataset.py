@@ -189,6 +189,7 @@ class SFTDataset(Dataset):
             input_field_data.update({
                 'user': user,
                 'target_item': target_item,
+                'target_item_title': self.get_item_index(target_item),
                 'sub_sequential': sub_sequential,
                 'history': get_history_text([f"'{self.get_item_index(_)}'" for _ in sub_sequential]),
             })

@@ -1,10 +1,10 @@
-/.idea/
-/data/dataset/steam/*
-/data/dataset/sub_movie/*
-/data/dataset/share_chat_gpt2.pickle
+.idea/
+data/dataset/steam/*
+data/dataset/sub_movie/*
+data/dataset/share_chat_gpt2.pickle
 
-/TeacherModel/dataset/steam/*
-/TeacherModel/dataset/sub_movie/*
-/TeacherModel/log/*
-/TeacherModel/saved/*
+TeacherModel/dataset/steam/*
+TeacherModel/dataset/sub_movie/*
+TeacherModel/log/*
+TeacherModel/saved/*
 
