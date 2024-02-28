@@ -70,7 +70,9 @@ class RLTrainer(BaseTrainer):
         metrics_dict = Metrics(['RLTotal']+self.args.RL_train_tasks.split(','), self.args.topk, self.category2item, self.title2item, self.accelerator)
         if self.args.dry and self.args.lr > 0:
             best_val_reward = self.RL_val(0)
-        for eps in range(self.args.num_episodes):
+        for eps in range(self.args.num_episode):
+            if hasattr(self.train_data, "set_epoch"):
+                self.train_data.set_epoch(eps)
             pbar = tqdm(total=len(self.train_loader), ncols=150, disable=not self.accelerator.is_main_process)
             for batch in self.train_loader:
                 self.accelerator.wait_for_everyone()

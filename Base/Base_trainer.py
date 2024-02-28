@@ -74,7 +74,7 @@ class BaseTrainer(nn.Module):
         optim = AdamW(params, lr=self.args.lr, weight_decay=self.args.weight_decay,
                       betas=(self.args.adam_beta1, self.args.adam_beta2), eps=self.args.adam_eps)
         if self.args.train_stage == 'RL':
-            scheduler = get_polynomial_decay_schedule_with_warmup(optim, 50, batch_per_epoch*self.args.num_episodes, power=2.0)
+            scheduler = get_polynomial_decay_schedule_with_warmup(optim, 50*self.accelerator.num_processes, batch_per_epoch*self.args.num_episodes, power=2.0)
         else:
             step_total = batch_per_epoch * (self.args.epoch - self.start_epoch) // self.args.gradient_accumulation_steps
             warmup_iters = int(step_total * self.args.warmup_ratio)
@@ -388,6 +388,8 @@ class BaseTrainer(nn.Module):
         if self.args.dry:
             best_val_loss = self.SFT_val_loss(0)
         for epoch in range(1, self.args.epoch+1):
+            if hasattr(self.train_data, "set_epoch"):
+                self.train_data.set_epoch(epoch-1)
             pbar = tqdm(total=len(self.train_loader), ncols=210, disable=not self.accelerator.is_local_main_process)
             self.train()
             for step_i, batch in enumerate(self.train_loader):
@@ -433,6 +435,8 @@ class BaseTrainer(nn.Module):
         if self.args.dry and self.args.lr > 0:
             self.RL_val(0)
         for eps in range(self.args.num_episodes):
+            if hasattr(self.train_data, "set_epoch"):
+                self.train_data.set_epoch(eps)
             pbar = tqdm(total=len(self.train_loader), ncols=150, disable=not self.accelerator.is_main_process)
             for batch in self.train_loader:
                 self.accelerator.wait_for_everyone()

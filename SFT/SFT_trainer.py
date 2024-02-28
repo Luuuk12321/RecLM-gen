@@ -72,8 +72,10 @@ class SFTTrainer(BaseTrainer):
     def SFT_train(self):
         best_val_loss = float('inf')
         if self.args.dry:
-            best_val_loss = self.SFT_val_loss(self.start_epoch) if isinstance(self.val_data, BaseDataset) else self.SFT_val_inference(self.start_epoch)
+            best_val_loss = self.SFT_val_inference(self.start_epoch)
         for epoch in range(self.start_epoch+1, self.args.epoch+1):
+            if hasattr(self.train_data, "set_epoch"):
+                self.train_data.set_epoch(epoch-1)
             task_loss = {_: 0.0 for _ in self.args.SFT_train_tasks.split(',')}
             task_count = {_: 1e-10 for _ in self.args.SFT_train_tasks.split(',')}
             pbar = tqdm(total=len(self.train_loader), ncols=210, disable=not self.accelerator.is_local_main_process)
@@ -110,7 +112,7 @@ class SFTTrainer(BaseTrainer):
                 self.actor_critic.save_parameters(f"Epoch{epoch:02d}")
             if epoch < self.args.val_epoch:
                 continue
-            val_loss = self.SFT_val_loss(epoch) if isinstance(self.val_data, BaseDataset) else self.SFT_val_inference(epoch)
+            val_loss = self.SFT_val_inference(epoch)
             if val_loss < best_val_loss and self.accelerator.is_main_process:
                 best_val_loss = val_loss
                 self.actor_critic.save_parameters("BEST_EVAL_LOSS")

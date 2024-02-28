@@ -59,5 +59,5 @@ if __name__ == '__main__':
 
 # todo: RL dynamic data_set single gpu      [√]
 # todo: RL dynamic data_set multi gpus      [√]
-# todo: RL static data_file single gpu      [-]
-# todo: RL static data_file multi gpus      [-]
+# todo: RL static data_file single gpu      [√]
+# todo: RL static data_file multi gpus      [√]

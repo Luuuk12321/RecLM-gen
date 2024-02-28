@@ -26,7 +26,7 @@ class BaseDataset(Dataset):
 
     def set_epoch(self, epoch):
         print(f'set epoch {epoch}')
-        self.epoch_idx = epoch % len(self.complete_datum_info)
+        self.epoch_idx = epoch % len(self.complete_datum_info) if self.mode == 'train' else 0
 
     def collate_fn(self, batch):
         batch_entry = {}
