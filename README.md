@@ -1,11 +1,18 @@
-# Raw dataset format
+# RecLM-gen
+## Introduction
+`RecLM-gen` is a repo used to fine-tune LLMs to align LLMs for controllable recommendation tasks. Additionally, it gives the minimal implementation of supervised fine-tune(SFT) and reinforcement learning(RL) on LLMs. It is scalable for users to fine-tune LLMs on other domains and highly customized the training processes.
+This repo is built upon the [`transformers`](https://github.com/huggingface/transformers) lib.
+
+Next, we provide an example of the fine-tuning process with two stages on recommendation task.
+
+## Raw dataset format
 Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.pickle`, `sequential.pickle`.
 
 `ranking_candidate.pickle` is needed, if you need to test reranking task.
 
 **Total dataset is available on this [link](https://drive.google.com/file/d/1zgVqJWfDq5w-sJxrQoQkdBAJOL3GsxkY/view?usp=drive_link).**
 
-## category.pickle
+### category.pickle
 `category.pickle` is a dict, the keys are all categories, and value is the item list belonging specific category.
 ```json
 {
@@ -15,7 +22,7 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
   "category_k": ["item_id_j", "..."]
 }
 ```
-## meta.pickle
+### meta.pickle
 `meta.pickle` is a dict, the keys are all item_ids, and value is the information(including one type of item index at least, such as `title`) of specific item.
 ```json
 {
@@ -26,7 +33,7 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 }
 ```
 
-## sequential.pickle
+### sequential.pickle
 `sequential.pickle` is a dict, the keys are all user_ids, and value is the history(time-dependent order) of specific user.
 ```json
 {
@@ -36,7 +43,7 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 }
 ```
 
-## ranking_candidate.pickle (needed for testing reranking task)
+### ranking_candidate.pickle (needed for testing reranking task)
 `ranking_candidate.pickle` is a dict, the keys are all user_ids, and value is the list with 100 negative samples, which are random chosen.
 ```json
 {
@@ -47,16 +54,16 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 ```
 
 
-# 1. SASRec Server
+## 1. SASRec Server
 
-## 1.1. SASRec dataset and model
+### 1.1. SASRec dataset and model
 Model `sub_movie.pth` in `TeacherModel/saved/`.
 
 Dataset files `sub_movie.inter`, `sub_movie.item`, `category.pickle(as same as raw dataset)` in `TeacherModel/dataset/sub_movie/`.
 
 `sub_movie.inter`, `sub_movie.item` is used to train SASRec model in Recbole lib. (from the same data source)
 
-## 1.2. SASRec Server start
+### 1.2. SASRec Server start
 The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
 
 For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
@@ -65,9 +72,9 @@ cd TeacherModel/
 python acil.py sub_movie 12621 0 1
 ```
 
-# 2. SFT stage
+## 2. SFT stage
 
-## 2.1. Dataset format
+### 2.1. Dataset format
 For SFT, the type of dataset is `List[List[Dict]]`.
 
 The `i-th` `List[Dict]` is the train data of the `i-th` epoch.
@@ -88,7 +95,7 @@ Each `Dict` is a train sample, which has key `"input_text"` and `"output_text"` 
 ]
 ```
 
-## 2.2. Dataset prepare
+### 2.2. Dataset prepare
 The dataset file is saved to `{data_path}/SFT_dataset_train.pickle` and `{data_path}/SFT_dataset_val.pickle`.
 ```shell
 python data_process.py 
@@ -108,7 +115,7 @@ python data_process.py
 --teacher_port 12621 
 ```
 
-## 2.3. SFT train
+### 2.3. SFT train
 Train dataset is dynamic generated during `__getitem__` function of dataset class.
 
 **Note: Don't set `--gpu` and add `--distributed` command param while using accelerate to launch. It will be set automatically.**
@@ -172,7 +179,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all m
 --val_data_file data/dataset/sub_movie/SFT_dataset_val.pickle 
 ```
 
-## 2.4. SFT merge
+### 2.4. SFT merge
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/`
 ```shell
 python main.py 
@@ -186,9 +193,9 @@ python main.py
 ```
 
 
-# 2. RL stage
+## 2. RL stage
 
-## 2.1. Dataset format
+### 2.1. Dataset format
 For RL, the type of dataset is also `List[List[Dict]]`.
 
 The `i-th` `List[Dict]` is the train data of the `i-th` episode.
@@ -209,7 +216,7 @@ Each `Dict` is a train sample, which has key `'input_text'` at least for RL.
 ]
 ```
 
-## 2.2. Dataset prepare
+### 2.2. Dataset prepare
 The dataset file is saved to `{data_path}/RL_dataset_train.pickle` and `{data_path}/RL_dataset_val.pickle`.
 ```shell
 python data_process.py 
@@ -229,7 +236,7 @@ python data_process.py
 ```
 
 
-## 2.3. RL train
+### 2.3. RL train
 Train dataset is dynamic generated during `__getitem__` function of dataset class.
 ```shell
 CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all main.py 
@@ -256,7 +263,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
 --kl_coef 0.3 
 --entropy_weight 0.01 
 --vf_coef 0.1 
---lm_head 
+--lm_head_full_tune 
 --policy_kl_threshold 0.05 
 --idx 
 --llama2_chat_template 
@@ -297,7 +304,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
 --kl_coef 0.3 
 --entropy_weight 0.01 
 --vf_coef 0.1 
---lm_head 
+--lm_head_full_tune 
 --policy_kl_threshold 0.05 
 --idx 
 --llama2_chat_template 
@@ -314,7 +321,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
 --val_data_file data/dataset/sub_movie/RL_dataset_val.pickle 
 ```
 
-## 2.4. RL merge
+### 2.4. RL merge
 The merged model will be saved in `'snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/`
 ```shell
 python main.py 
@@ -327,19 +334,19 @@ python main.py
 --RL_critic_lora_r 4 
 --RL_critic_lora_a 2 
 --RL_load snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/7000step_RL 
---lm_head 
+--lm_head_full_tune 
 --FA2 
 ```
 
-# 3. Test stage
+## 3. Test stage
 
-## 3.1. VLLM deploy
+### 3.1. VLLM deploy
 ```shell
 CUDA_VISIBLE_DEVICES=1 python -m vllm.entrypoints.openai.api_server --port 13579 --model snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/
 CUDA_VISIBLE_DEVICES=1 python -m vllm.entrypoints.openai.api_server --port 13579 --model snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/
 ```
 
-## 3.2. VLLM test
+### 3.2. VLLM test
 ```shell
 ./scripts/tasks_test.sh snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 13579
 ./scripts/tasks_test.sh snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RL_Step7000/ 13579
