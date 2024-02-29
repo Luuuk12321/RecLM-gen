@@ -63,8 +63,8 @@ class Metrics:
         self.metrics_dict[task]['CorrectCount'] += CorrectCount
         self.metrics_dict[task]['Count'] += 1
 
-        if target_title[0] in _output_titles:
-            idx = _output_titles.index(target_title[0])
+        if input_field_data['target_item_title'] in _output_titles:
+            idx = _output_titles.index(input_field_data['target_item_title'])
             self.metrics_dict[task]['Recall'] += 1
             self.metrics_dict[task]['MRR'] += 1/(idx+1)
             self.metrics_dict[task]['NDCG'] += 1/math.log2(idx+2)

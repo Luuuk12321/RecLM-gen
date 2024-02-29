@@ -33,7 +33,7 @@ def quary_vllm(input_text, args):
             "top_p": 0.2,
             "top_k": 5,
         }
-        response = requests.post(f'http://127.0.0.1:{args.teacher_port}/generate', headers=headers, json=pload_sample if args.sample else pload_search, stream=False)
+        response = requests.post(f'http://127.0.0.1:{args.vllm_port}/generate', headers=headers, json=pload_sample if args.sample else pload_search, stream=False)
         output_data = json.loads(response.content)
         if 'text' not in output_data:
             continue
@@ -50,7 +50,7 @@ def quary_vllm_openai(input_text, args):
             "temperature": 0.0,
             "max_tokens": args.gen_max_length,
         }
-        response = requests.post(f'http://127.0.0.1:{args.teacher_port}/v1/completions', headers=headers, json=pload, stream=False)
+        response = requests.post(f'http://127.0.0.1:{args.vllm_port}/v1/completions', headers=headers, json=pload, stream=False)
         output_data = json.loads(response.content)
         output_text = output_data["choices"][0]['text']
         output = output_text
@@ -147,13 +147,14 @@ if __name__ == "__main__":
     parser.add_argument("--idx", action='store_true')
     parser.add_argument("--sample", action='store_true')
     parser.add_argument("--reprocess", action='store_true')
-    parser.add_argument("--teacher_port", type=int, default=13579)
+    parser.add_argument("--teacher_port", type=int, default=12621)
+    parser.add_argument("--vllm_port", type=int, default=13579)
     args = parser.parse_args()
     args.is_main_process = True
     kwargs = vars(args)
     args = Config(**kwargs)
     print(args)
-    gpt = GPT(model_name=args.model_name, port=args.teacher_port)
+    gpt = GPT(model_name=args.model_name, port=args.vllm_port)
 
     category2item = load_pickle(args.data_path + 'category.pickle')
     metas = load_pickle(args.data_path + 'meta.pickle')

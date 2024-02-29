@@ -3,7 +3,7 @@
 `RecLM-gen` is a repo used to fine-tune LLMs to align LLMs for controllable recommendation tasks. Additionally, it gives the minimal implementation of supervised fine-tune(SFT) and reinforcement learning(RL) on LLMs. It is scalable for users to fine-tune LLMs on other domains and highly customized the training processes.
 This repo is built upon the [`transformers`](https://github.com/huggingface/transformers) lib.
 
-Next, we provide an example of the fine-tuning process with two stages on recommendation task.
+Next, we provide an example of the fine-tuning process with two training stages on recommendation task. 
 
 ## Raw dataset format
 Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.pickle`, `sequential.pickle`.
@@ -125,21 +125,19 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all m
 --data_path data/dataset/sub_movie/ 
 --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
 --backbone snap/Llama-2-7b-hf-chat/ 
---item_index title64_t --batch_size 1 
---topk 10 --clip_grad_norm 1.0 
+--item_index title64_t 
+--batch_size 1 
+--topk 10 
+--clip_grad_norm 1.0 
 --epoch 40 
---gen_max_length 512 
 --lr 0.001 
 --gradient_accumulation_steps 16 
 --train_stage SFT 
 --SFT_actor_lora_r 16 
 --SFT_actor_lora_a 8 
 --warmup_ratio 0.0125 
---val_batch_size 16 
 --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT 
 --SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 
---backup_ip 0.0.0.0 
---val_epoch 0 
 --share_chat_gpt_ratio 0.5 
 --FA2 
 --llama2_chat_template 
@@ -149,35 +147,11 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all m
 
 If you want to use a static dataset, please set `--train_data_file` and `--val_data_file` command param.
 ```shell
-# train data is from .
-CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all main.py 
---seed 0 
---data_path data/dataset/sub_movie/ 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
---backbone snap/Llama-2-7b-hf-chat/ 
---item_index title64_t --batch_size 1 
---topk 10 --clip_grad_norm 1.0 
---epoch 40 
---gen_max_length 512 
---lr 0.001 
---gradient_accumulation_steps 16 
---train_stage SFT 
---SFT_actor_lora_r 16 
---SFT_actor_lora_a 8 
---warmup_ratio 0.0125 
---val_batch_size 16 
---SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT 
---SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 
---backup_ip 0.0.0.0 
---val_epoch 0 
---share_chat_gpt_ratio 0.5 
---FA2 
---llama2_chat_template 
---idx 
---distributed 
---train_data_file data/dataset/sub_movie/SFT_dataset_train.pickle 
---val_data_file data/dataset/sub_movie/SFT_dataset_val.pickle 
+  --train_data_file data/dataset/sub_movie/SFT_dataset_train.pickle 
+  --val_data_file data/dataset/sub_movie/SFT_dataset_val.pickle 
 ```
+
+`RecLM-gen` supports single gpu training. The example script is available at [scripts/single_gpu_sft_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/single_gpu_sft_train.sh).
 
 ### 2.4. SFT merge
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/`
@@ -250,13 +224,11 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
 --topk 10 
 --clip_grad_norm 0.5 
 --epoch 4 
---gen_max_length 512 
 --train_stage RL 
 --RL_actor_lora_r 4 
 --RL_critic_lora_r 4 
 --RL_train_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP 
 --RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP_20,RLPersonalCategoryRateMP_30,RLPersonalCategoryRateEP_50,RLItemCount 
---backup_ip 0.0.0.0 
 --lr 0.000005 
 --lora_drop 0.0 
 --weight_decay 0.0 
@@ -280,49 +252,12 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
 
 If you want to use a static dataset, please set `--train_data_file` and `--val_data_file` command param.
 ```shell
-CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all main.py 
---seed 0 
---data_path data/dataset/sub_movie/ 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
---backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 
---item_index title64_t 
---batch_size 8 
---gradient_accumulation_steps 4 
---topk 10 
---clip_grad_norm 0.5 
---epoch 4 
---gen_max_length 512 
---train_stage RL 
---RL_actor_lora_r 4 
---RL_critic_lora_r 4 
---RL_train_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP 
---RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP_20,RLPersonalCategoryRateMP_30,RLPersonalCategoryRateEP_50 
---backup_ip 0.0.0.0 
---lr 0.000005 
---lora_drop 0.0 
---weight_decay 0.0 
---kl_coef 0.3 
---entropy_weight 0.01 
---vf_coef 0.1 
---lm_head_full_tune 
---policy_kl_threshold 0.05 
---idx 
---llama2_chat_template 
---FA2 
---lr_power 2.0 
---learn_batch 1 
---sample_num 2 
---whiten_reward 
---num_episodes 2 
---reward_alpha 0.5 
---fine_grain_reward
---distributed
---train_data_file data/dataset/sub_movie/RL_dataset_train.pickle 
---val_data_file data/dataset/sub_movie/RL_dataset_val.pickle 
+  --train_data_file data/dataset/sub_movie/RL_dataset_train.pickle 
+  --val_data_file data/dataset/sub_movie/RL_dataset_val.pickle 
 ```
 
 ### 2.4. RL merge
-The merged model will be saved in `'snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/`
+The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/`
 ```shell
 python main.py 
 --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/ 

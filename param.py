@@ -85,7 +85,7 @@ def add_args(parse=True, **optional_kwargs):
     parser.add_argument('--adam_beta1', type=float, default=0.9)
     parser.add_argument('--adam_beta2', type=float, default=0.999)
     parser.add_argument('--epoch', type=int, default=10)
-    parser.add_argument('--val_epoch', type=int, default=10)
+    parser.add_argument('--val_epoch', type=int, default=0)
     parser.add_argument('--dropout', type=float, default=0.0)
     parser.add_argument("--lora_dropout", type=float, default=0.1)
     parser.add_argument("--quantization", action='store_true', help='whether to use quantization')

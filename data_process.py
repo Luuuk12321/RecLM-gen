@@ -21,6 +21,28 @@ if __name__ == '__main__':
 
     tokenizer = AutoTokenizer.from_pretrained("snap/Llama-2-7b-hf-chat/")
 
+    category2item = load_pickle(args.data_path + 'category.pickle')
+    metas = load_pickle(args.data_path + 'meta.pickle')
+    item2category = {}
+    for c in category2item:
+        for i in category2item[c]:
+            if item2category.get(i) is None:
+                item2category[i] = []
+            item2category[i].append(c)
+    title2item = {}
+    for _ in metas:
+        if title2item.get(metas[_][args.item_index]) is None:
+            title2item[metas[_][args.item_index]] = []
+        title2item[metas[_][args.item_index]].append(_)
+    data = {
+        'category2item': category2item,
+        'item2category': item2category,
+        'metas': metas,
+        'title2item': title2item,
+        'sequential': load_pickle(args.data_path + 'sequential.pickle'),
+        'ranking_candidate': load_pickle(args.data_path + 'ranking_candidate.pickle'),
+        'share_chat_gpt': load_pickle('data/dataset/share_chat_gpt2.pickle'),
+    }
     if args.train_stage == 'SFT' and args.share_chat_gpt_ratio > 0.:
         args.SFT_train_tasks = args.SFT_train_tasks + ',ShareChatGPT'
 
@@ -31,13 +53,6 @@ if __name__ == '__main__':
         TaskNum = {_: 1 for _ in args.SFT_train_tasks.split(',')}
         ValTaskTemplate = {_: Val_task_group_mapping[_.split('_')[0]] for _ in args.SFT_val_tasks.split(',')}
         ValTaskNum = {_: 1 for _ in args.SFT_val_tasks.split(',')}
-        data = {
-            'category': load_pickle(args.data_path + 'category.pickle'),
-            'metas': load_pickle(args.data_path + 'meta.pickle'),
-            'sequential': load_pickle(args.data_path + 'sequential.pickle'),
-            'ranking_candidate': load_pickle(args.data_path + 'ranking_candidate.pickle'),
-            'share_chat_gpt': load_pickle('data/dataset/share_chat_gpt2.pickle'),
-        }
         train_data = SFTDataset(args, TaskTemplate, TaskNum, data, tokenizer, 'train', immediately=False)
         train_datasets = []
         for epoch in range(args.epoch):
@@ -60,12 +75,6 @@ if __name__ == '__main__':
         TaskNum = {_: 1 for _ in args.RL_train_tasks.split(',')}
         ValTaskTemplate = {_: Val_task_group_mapping[_.split('_')[0]] for _ in args.RL_val_tasks.split(',')}
         ValTaskNum = {_: 1 for _ in args.RL_val_tasks.split(',')}
-        data = {
-            'metas': load_pickle(args.data_path + 'meta.pickle'),
-            'sequential': load_pickle(args.data_path + 'sequential.pickle'),
-            'category': load_pickle(args.data_path + 'category.pickle'),
-            'ranking_candidate': load_pickle(args.data_path + 'ranking_candidate.pickle'),
-        }
         train_data = RLDataset(args, TaskTemplate, TaskNum, data, tokenizer, 'train', immediately=False)
         train_datasets = []
         for episode in range(args.num_episodes):

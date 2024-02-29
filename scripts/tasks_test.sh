@@ -23,5 +23,5 @@ tasks=(
 )
 for t in "${tasks[@]}";
 do
-  python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task ${t} --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --teacher_port ${PORT}
+  python task_test.py --data_path data/dataset/${DATASET}/ --item_index ${ITEM_INDEX} --SFT_test_task ${t} --model_name ${MODEL_NAME} --llama2_chat_template --idx --topk 10 --vllm_port ${PORT}
 done
