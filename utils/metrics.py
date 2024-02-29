@@ -79,11 +79,11 @@ class Metrics:
             SRTargetCategoryRate = sum([1 if _ in self.category2item[target_category] else 0 for _ in SeqRec_item_list])
             self.metrics_dict[task]['SRTargetCategoryRate'] += SRTargetCategoryRate
             if 'SRCategoryRateCorrect' in self.metrics_dict[task]:
-                if 'MP' in task or 'MC' in task:
+                if 'RateMP' in task or 'RateMC' in task:
                     SRCategoryRateCorrect = 1 if SRTargetCategoryRate >= input_field_data['category_count'] else 0
-                elif 'EP' in task or 'EC' in task:
-                    SRCategoryRateCorrect = 1 if abs(SRTargetCategoryRate-input_field_data['category_count']) <= 1 else 0
-                elif 'LP' in task or 'LC' in task:
+                elif 'RateEP' in task or 'RateEC' in task:
+                    SRCategoryRateCorrect = 1 if abs(SRTargetCategoryRate - input_field_data['category_count']) <= 1 else 0
+                elif 'RateLP' in task or 'RateLC' in task:
                     SRCategoryRateCorrect = 1 if (SRTargetCategoryRate+NonExistRate) <= input_field_data['category_count'] else 0
                 else:
                     raise NotImplementedError
@@ -93,11 +93,11 @@ class Metrics:
             self.metrics_dict[task]['RewardSum'] += list_reward
 
         if 'CategoryRateCorrect' in self.metrics_dict[task]:
-            if 'MP' in task or 'MC' in task:
+            if 'RateMP' in task or 'RateMC' in task:
                 CategoryRateCorrect = 1 if TargetCategoryRate >= input_field_data['category_count'] else 0
-            elif 'EP' in task or 'EC' in task:
+            elif 'RateEP' in task or 'RateEC' in task:
                 CategoryRateCorrect = 1 if abs(TargetCategoryRate - input_field_data['category_count']) <= 1 else 0
-            elif 'LP' in task or 'LC' in task:
+            elif 'RateLP' in task or 'RateLC' in task:
                 CategoryRateCorrect = 1 if (TargetCategoryRate+NonExistRate) <= input_field_data['category_count'] else 0
             else:
                 raise NotImplementedError
@@ -136,12 +136,11 @@ class Metrics:
                    'NDCG',
                    'TargetCategoryRate',
                    'SRTargetCategoryRate',
-                   'RewardSum',
                    'CategoryRateCorrect',
-                   'NotInCandidateRate',
                    'SRCategoryRateCorrect',
+                   'NotInCandidateRate',
                    'Loss',
-                   ]
+                   'RewardSum']
         table_rows = [f"|{_.center(24)}|{'|'.join([str(temp[__][_]).center(len(__)+4) if _ in temp[__] else '/'.center(len(__)+4) for __ in tasks])}|" for _ in metrics]
         table_rows_str = '\n'.join(table_rows)
         print(f'''

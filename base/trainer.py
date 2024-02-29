@@ -466,9 +466,9 @@ class BaseTrainer(nn.Module):
                     ppo_stat = self.learn_PPO()
                     # logging ppo stat
                     ppo_stat = sync_dict(self.accelerator, ppo_stat)
-                    if self.accelerator.is_main_process:
-                        for k, v in ppo_stat.items():
-                            self.writer.add_scalar(k, v / ppo_stat['training/backward_step'], self.sample_batch)
+                    # if self.accelerator.is_main_process:
+                    #     for k, v in ppo_stat.items():
+                    #         self.writer.add_scalar(k, v / ppo_stat['training/backward_step'], self.sample_batch)
                     self.memories.clear()
 
                 if self.sample_batch % self.args.val_save_step == 0:

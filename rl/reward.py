@@ -93,7 +93,7 @@ class RewardModel(BaseRewardModel):
                         else:
                             task_score.append(0.0)
                 elif task.startswith('RLPersonalCategoryRate'):
-                    if 'LP' in task:
+                    if 'RateLP' in task:
                         # if in_category_count <= input_field_data['category_count']:
                         #     task_score.append(0.5)
                         # else:
@@ -112,7 +112,7 @@ class RewardModel(BaseRewardModel):
                             else:
                                 task_score.append(0.0)
 
-                    elif 'MP' in task:
+                    elif 'RateMP' in task:
                         # if out_category_count < (input_field_data['item_count'] - input_field_data['category_count']):
                         #     task_score.append(0.5)
                         # else:
@@ -131,7 +131,7 @@ class RewardModel(BaseRewardModel):
                             else:
                                 task_score.append(0.0)
 
-                    elif 'EP' in task:
+                    elif 'RateEP' in task:
                         if _ in self.category2item[target_category]:
                             if in_category_count <= input_field_data['category_count']:
                                 task_score.append(1.0)
@@ -171,11 +171,11 @@ class RewardModel(BaseRewardModel):
         elif task.startswith('RLPersonalCategoryRate'):
             item_reward = rank_score*ranking_score_frac + task_score*task_score_frac
             # list_task_reward = rank_corrected_score.sum()/self.best_ranking_score[item_count]*ranking_score_frac + task_score.sum()/target_count*task_score_frac       # NR-18
-            if 'LP' in task and in_category_count <= input_field_data['category_count']:
+            if 'RateLP' in task and in_category_count <= input_field_data['category_count']:
                 list_task_reward = 1.0
-            elif 'MP' in task and in_category_count >= input_field_data['category_count']:
+            elif 'RateMP' in task and in_category_count >= input_field_data['category_count']:
                 list_task_reward = 1.0
-            elif 'EP' in task and in_category_count == input_field_data['category_count']:
+            elif 'RateEP' in task and in_category_count == input_field_data['category_count']:
                 list_task_reward = 1.0
             else:
                 # list_task_reward = 1.0/(math.log2(abs(in_category_count-input_field_data['category_count'])+2))   # NR-15, 17

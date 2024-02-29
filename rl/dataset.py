@@ -248,22 +248,24 @@ class RLDataset(Dataset):
                     'synthetic_intention': intention,
                 })
             elif task.startswith("RLPersonalCategoryRate"):
+                if self.mode in ['val', 'test']:
+                    item_count = self.args.topk
                 if self.mode in ['train', 'val']:
                     item_list = get_item_list(self.args.backup_ip, [user], [sub_sequential], item_count, port=self.teacher_port, immediately=self.immediately)
                 else:
                     item_list = [self.title2item[_][0] if _ in self.title2item else 'None' for _ in self.RLSeqRec_Result[user]]
 
                 if self.mode in ['train']:
-                    if 'MP' in task or 'EP' in task:
+                    if 'RateMP' in task or 'RateEP' in task:
                         target_category = random.choice(self.item2category[target_item])
                     elif 'LP' in task:
                         target_category = random.choice(self.find_maximum_category(item_list, target_item, max_count=2))
                     else:
                         raise NotImplementedError
                 else:
-                    if 'MP' in task or 'EP' in task:
+                    if 'RateMP' in task or 'RateEP' in task:
                         target_category = self.item2category[target_item][-1]
-                    elif 'LP' in task:
+                    elif 'RateLP' in task:
                         target_category = self.find_maximum_category(item_list, target_item)[-1]
                     else:
                         raise NotImplementedError
@@ -273,23 +275,23 @@ class RLDataset(Dataset):
                 })
 
                 if self.mode != 'train':
-                    p = int(int(task.split('_')[-1])/10)
+                    p = int(task.split('_')[-1])
                     output_category_item_count = int(p*item_count / 100)
                 else:
                     category_item_count = min(len(self.category2item[target_category]), item_count)
-                    if 'LP' in task:
+                    if 'LP_' in task:
                         target_category_item_count = random.choice(range(category_item_count))+1
                         output_category_item_count = target_category_item_count-1
-                    elif 'MP' in task:
+                    elif 'MP_' in task:
                         target_category_item_count = random.choice(range(category_item_count))
                         output_category_item_count = target_category_item_count
                     else:
                         target_category_item_count = random.choice(range(category_item_count+1))
                         output_category_item_count = target_category_item_count
-                    p = int(target_category_item_count/item_count*10)
+                    p = int(target_category_item_count/item_count*10)*10
                 input_field_data.update({
                     'item_count': item_count,
-                    'category_proportion': f"{p}0%",
+                    'category_proportion': f"{p}%",
                     'category_count': output_category_item_count,
                 })
             elif task in ["RLSeqRanking"]:
