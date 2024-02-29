@@ -24,7 +24,7 @@ CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all
   --kl_coef 0.3 \
   --entropy_weight 0.01 \
   --vf_coef 0.1 \
-  --lm_head \
+  --lm_head_full_tune \
   --policy_kl_threshold 0.05 \
   --idx \
   --llama2_chat_template \

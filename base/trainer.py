@@ -142,6 +142,7 @@ class BaseTrainer(nn.Module):
         return batch
 
     def compute_adv(self, old_action_values, rewards, action_mask):
+        # reference to implementation of trl lib: https://github.com/huggingface/trl/blob/main/trl/trainer/ppo_trainer.py#L1132
         if self.args.whiten_reward:
             whitened_rewards = whiten(rewards, action_mask, shift_mean=False, dim=None)
         else:

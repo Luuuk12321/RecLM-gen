@@ -16,7 +16,7 @@ def task_register(task):
         'InHistoryRate': 0.0,
     }
     if task in ['SFT+TestPersonalControlRec', 'SFT-TestPersonalControlRec', 'RL+PersonalControlRec',
-                'RL-PersonalControlRec', 'RLPersonalCategoryRate'] or task.startswith('SFTTestPersonalCategoryRate'):
+                'RL-PersonalControlRec'] or task.startswith('SFTTestPersonalCategoryRate') or task.startswith('RLPersonalCategoryRate'):
         metrics_dict.update({
             'SRTargetCategoryRate': 0.0,
         })

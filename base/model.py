@@ -248,7 +248,10 @@ class BaseModel(nn.Module):       # name
 
     @property
     def critic_named_parameters(self):
-        return {n: p for n, p in self.named_parameters() if self.critic_lora_scope in n}
+        critic_head_params = {n: p for n, p in self.critic_value_head.named_parameters()}
+        critic_lora_params = {n: p for n, p in self.named_parameters() if self.critic_lora_scope in n and 'lora' in n}
+        critic_head_params.update(critic_lora_params)
+        return critic_lora_params
 
     @property
     def actor_model(self):
