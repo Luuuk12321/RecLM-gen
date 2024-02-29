@@ -1,6 +1,6 @@
 # RecLM-gen
 ## Introduction
-`RecLM-gen` is a repo used to fine-tune LLMs to align LLMs for controllable recommendation tasks. Additionally, it gives the minimal implementation of supervised fine-tune(SFT) and reinforcement learning(RL) on LLMs. It is scalable for users to fine-tune LLMs on other domains and highly customized the training processes.
+`RecLM-gen` is a repo used to fine-tune LLMs to align LLMs for controllable recommendation tasks. Additionally, it gives the simple implementation of supervised fine-tune(SFT) and reinforcement learning(RL) on LLMs. It is scalable for users to fine-tune LLMs on other domains and highly customize the training processes.
 This repo is built upon the [`transformers`](https://github.com/huggingface/transformers) lib.
 
 Next, we provide an example of the fine-tuning process with two training stages on recommendation task. 
