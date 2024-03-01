@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 nohup accelerate launch --num_processes 4 --gpu_ids all main.py \
+CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
@@ -18,7 +18,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 nohup accelerate launch --num_processes 4 --gpu_ids
   --SFT_actor_lora_a 8 \
   --warmup_ratio 0.0125 \
   --val_batch_size 16 \
-  --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec1,SFTTestPersonalCategoryRate \
+  --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT \
   --SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 \
   --backup_ip 0.0.0.0 \
   --val_epoch 0 \
@@ -26,5 +26,4 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 nohup accelerate launch --num_processes 4 --gpu_ids
   --FA2 \
   --llama2_chat_template \
   --idx \
-  --distributed \
-  &> snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/output.log
+  --distributed

@@ -118,7 +118,6 @@ python data_process.py
 ### 2.3. SFT train
 Train dataset is dynamic generated during `__getitem__` function of dataset class.
 
-**Note: Don't set `--gpu` and add `--distributed` command param while using accelerate to launch. It will be set automatically.**
 ```shell
 CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all main.py 
 --seed 0 
@@ -155,10 +154,11 @@ If you want to use a static dataset, please set `--train_data_file` and `--val_d
 
 ### 2.4. SFT merge
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/`
+
+**Use `CUDA_VISIBLE_DEVICES=x` to select gpu, do not set the `--gpu` command param**
 ```shell
-python main.py 
+CUDA_VISIBLE_DEVICES=0 python main.py 
 --backbone snap/Llama-2-7b-hf-chat/ 
---gpu cuda:0 
 --train_stage SFT_Merge 
 --SFT_actor_lora_r 16 
 --SFT_actor_lora_a 8 
@@ -259,10 +259,9 @@ If you want to use a static dataset, please set `--train_data_file` and `--val_d
 ### 2.4. RL merge
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/`
 ```shell
-python main.py 
+CUDA_VISIBLE_DEVICES=0 python main.py 
 --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/ 
 --backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 
---gpu cuda:0 
 --train_stage RL_Merge 
 --RL_actor_lora_r 4 
 --RL_actor_lora_a 2 

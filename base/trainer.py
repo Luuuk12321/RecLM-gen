@@ -28,10 +28,8 @@ class BaseTrainer(nn.Module):
             kwargs_handlers=[DistributedDataParallelKwargs(find_unused_parameters=(self.args.train_stage == 'RL'))]     # need for RL
         )
         set_seed(self.args.seed)
-        # handle with single GPU and multi GPUs.
-        # If run with python, need to set args.gpu
-        # If run with accelerate, do not set args.gpu
-        self.args.gpu = self.args.gpu or self.accelerator.device
+        # Use CUDA_VISIBLE_DEVICES=x to select gpu, do not set the --gpu command param
+        self.args.gpu = self.accelerator.device
         self.actor_critic = BaseModel(args=self.args, device=self.args.gpu)
         if self.accelerator.is_main_process:
             print(args)
@@ -59,7 +57,8 @@ class BaseTrainer(nn.Module):
     def prepare(self, train_loader, val_loader):
         named_params = {}
         named_params.update(self.actor_critic.actor_named_parameters)
-        named_params.update(self.actor_critic.critic_named_parameters)
+        if self.args.train_stage in ['RL']:
+            named_params.update(self.actor_critic.critic_named_parameters)
         self.optim, self.lr_scheduler = self.get_optimizer_scheduler(named_params, len(self.train_loader))
 
         self.warped_actor_critic, self.optim, self.train_loader, self.val_loader, self.lr_scheduler = self.accelerator.prepare(

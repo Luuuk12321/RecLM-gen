@@ -1,6 +1,6 @@
 #!/bin/bash
 
-python main.py \
+CUDA_VISIBLE_DEVICES=0 python main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
@@ -18,13 +18,11 @@ python main.py \
   --SFT_actor_lora_a 8 \
   --warmup_ratio 0.0125 \
   --val_batch_size 16 \
-  --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec1,SFTTestPersonalCategoryRate \
+  --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT \
   --SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 \
   --backup_ip 0.0.0.0 \
   --val_epoch 0 \
   --share_chat_gpt_ratio 0.5 \
   --FA2 \
   --llama2_chat_template \
-  --idx \
-  --gup cuda:0 \
-  &> snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/output.log
+  --idx

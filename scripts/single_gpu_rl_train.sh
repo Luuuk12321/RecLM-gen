@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES=0,1 accelerate launch --num_processes 2 --gpu_ids all main.py \
+CUDA_VISIBLE_DEVICES=0 python main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
@@ -35,5 +35,4 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch --num_processes 2 --gpu_ids all main.
   --whiten_reward \
   --num_episodes 2 \
   --reward_alpha 0.5 \
-  --fine_grain_reward \
-  --distributed
+  --fine_grain_reward
