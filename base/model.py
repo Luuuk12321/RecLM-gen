@@ -112,7 +112,7 @@ class BaseModel(nn.Module):       # name
             results = self.load_state_dict(state_dict['params'], strict=False)
             assert len(results.unexpected_keys) == 0, results.unexpected_keys
             print(f'{self.args.train_stage} model loaded of file {load_file}')
-            return int(load_file.split('/')[-1][5:7]) if self.args.train_stage in ['SFT', 'SFT_Merge'] else int(load_file.split('/')[-1][:-9])
+            return int(load_file.split('/')[-1][5:7]) if self.args.train_stage in ['SFT', 'SFT_Merge'] else int(load_file.split('/')[-1][:-7])
         else:
             return 0
 
