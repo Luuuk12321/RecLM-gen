@@ -12,5 +12,5 @@ class RewardOutput:
 
 
 class BaseRewardModel:
-    def get_reward(self, batch, output_title_list, only_reward=False) -> RewardOutput:
+    def get_reward(self, batch, model_output, only_reward=False) -> RewardOutput:
         ...

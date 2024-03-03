@@ -1,4 +1,6 @@
 import os
+import re
+
 from torch.utils.tensorboard import SummaryWriter
 from rl.dataset import *
 from base.trainer import BaseTrainer
@@ -230,7 +232,11 @@ class RLTrainer(BaseTrainer):
         return _reward_sum/len(sync_metrics_dict)
 
     def RL_val_path(self):
-        val_steps = {int(_[:-13]): os.path.join(self.args.output, _[:-4]) for _ in os.listdir(self.args.output) if _.endswith('.pth')}
+        val_steps = {}
+        for params_file in os.listdir(self.args.output):
+            step = re.findall(r'^(\d+)step_RL\.pth', params_file)   # matching the train step from file name
+            if len(step) > 0:
+                val_steps[step[0]] = os.path.join(self.args.output, params_file[:-4])
         if self.args.dry:
             val_steps[0] = None
         val_steps = {_: val_steps[_] for _ in sorted(val_steps, key=lambda k: k) if _ >= 0}

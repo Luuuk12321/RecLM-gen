@@ -117,32 +117,8 @@ python data_process.py
 
 ### 2.3. SFT train
 Train dataset is dynamic generated during `__getitem__` function of dataset class.
+The example script is available at [scripts/sft_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/sft_train.sh).
 
-```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all main.py 
---seed 0 
---data_path data/dataset/sub_movie/ 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
---backbone snap/Llama-2-7b-hf-chat/ 
---item_index title64_t 
---batch_size 1 
---topk 10 
---clip_grad_norm 1.0 
---epoch 40 
---lr 0.001 
---gradient_accumulation_steps 16 
---train_stage SFT 
---SFT_actor_lora_r 16 
---SFT_actor_lora_a 8 
---warmup_ratio 0.0125 
---SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT 
---SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 
---share_chat_gpt_ratio 0.5 
---FA2 
---llama2_chat_template 
---idx
---distributed 
-```
 
 If you want to use a static dataset, please set `--train_data_file` and `--val_data_file` command param.
 ```shell
@@ -150,21 +126,14 @@ If you want to use a static dataset, please set `--train_data_file` and `--val_d
   --val_data_file data/dataset/sub_movie/SFT_dataset_val.pickle 
 ```
 
-`RecLM-gen` supports single gpu training. The example script is available at [scripts/single_gpu_sft_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/single_gpu_sft_train.sh).
+`RecLM-gen` supports single gpu in SFT training. The example script is available at [scripts/single_gpu_sft_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/single_gpu_sft_train.sh).
 
 ### 2.4. SFT merge
+The example script is available at [scripts/sft_merge.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/sft_merge.sh).
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/`
 
 **Use `CUDA_VISIBLE_DEVICES=x` to select gpu, do not set the `--gpu` command param**
-```shell
-CUDA_VISIBLE_DEVICES=0 python main.py 
---backbone snap/Llama-2-7b-hf-chat/ 
---train_stage SFT_Merge 
---SFT_actor_lora_r 16 
---SFT_actor_lora_a 8 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
---SFT_load snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/Epoch37_SFT 
-```
+
 
 
 ## 2. RL stage
@@ -212,43 +181,7 @@ python data_process.py
 
 ### 2.3. RL train
 Train dataset is dynamic generated during `__getitem__` function of dataset class.
-```shell
-CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all main.py 
---seed 0 
---data_path data/dataset/sub_movie/ 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ 
---backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 
---item_index title64_t 
---batch_size 8 
---gradient_accumulation_steps 4 
---topk 10 
---clip_grad_norm 0.5 
---epoch 4 
---train_stage RL 
---RL_actor_lora_r 4 
---RL_critic_lora_r 4 
---RL_train_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP,RLPersonalCategoryRateMP,RLPersonalCategoryRateEP 
---RL_val_tasks RLSeqRec,RL+PersonalControlRec,RL-PersonalControlRec,RLPersonalCategoryRateLP_20,RLPersonalCategoryRateMP_30,RLPersonalCategoryRateEP_50,RLItemCount 
---lr 0.000005 
---lora_drop 0.0 
---weight_decay 0.0 
---kl_coef 0.3 
---entropy_weight 0.01 
---vf_coef 0.1 
---lm_head_full_tune 
---policy_kl_threshold 0.05 
---idx 
---llama2_chat_template 
---FA2 
---lr_power 2.0 
---learn_batch 1 
---sample_num 2 
---whiten_reward 
---num_episodes 2 
---reward_alpha 0.5 
---fine_grain_reward
---distributed 
-```
+The example script is available at [scripts/rl_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/rl_train.sh).
 
 If you want to use a static dataset, please set `--train_data_file` and `--val_data_file` command param.
 ```shell
@@ -256,21 +189,14 @@ If you want to use a static dataset, please set `--train_data_file` and `--val_d
   --val_data_file data/dataset/sub_movie/RL_dataset_val.pickle 
 ```
 
+`RecLM-gen` supports single gpu in RL training. The example script is available at [scripts/single_gpu_rl_train.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/single_gpu_rl_train.sh).
+
+
 ### 2.4. RL merge
+The example script is available at [scripts/rl_merge.sh](https://github.com/Luuuk12321/RecLM-gen/blob/main/scripts/rl_merge.sh).
+
 The merged model will be saved in `snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/RLHF_Step7000/`
-```shell
-CUDA_VISIBLE_DEVICES=0 python main.py 
---output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/ 
---backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ 
---train_stage RL_Merge 
---RL_actor_lora_r 4 
---RL_actor_lora_a 2 
---RL_critic_lora_r 4 
---RL_critic_lora_a 2 
---RL_load snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/RL_ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/Total_train_LM-True_VM-False_NR-20.1_SN-2_Q-False_T6_FG-True_LR-5e-06_LDO-0.0_WD-0.0_KLC-0.3_EW-0.01_RS-False_RW-True_VFC-0.1_KLT-0.05_LRP-2.0_GAMMA-0.99_GAS-4_LB-1_RA_0.5_/7000step_RL 
---lm_head_full_tune 
---FA2 
-```
+
 
 ## 3. Test stage
 

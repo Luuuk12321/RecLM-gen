@@ -114,6 +114,10 @@ class Metrics:
         return iter(self.metrics_dict.keys())
 
     def get_sync_metrics(self):
+        """
+        get the synchronized metrics dict cross all processes while using multi gpus in training.
+        :return:
+        """
         temp = copy.deepcopy(self.metrics_dict)
         if self.accelerator:
             temp = {t: sync_dict(self.accelerator, temp[t]) for t in temp}

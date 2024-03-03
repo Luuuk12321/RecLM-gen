@@ -20,7 +20,7 @@ if __name__ == '__main__':
     if args.train_stage in ['RL', 'RL_merge']:
         if args.model_name is None:
             if args.lr > 0:
-                args.model_name = f'RL_{args.backbone[5:]}Total_train_LM-{args.lm_head_full_tune}_VM-{args.vague_mapping}_NR-20.1_SN-{args.sample_num}' \
+                args.model_name = f'RL_Total_train_LM-{args.lm_head_full_tune}_VM-{args.vague_mapping}_NR-20.1_SN-{args.sample_num}' \
                                   f'_Q-{args.quantization}_T{len(args.RL_train_tasks.split(","))}' \
                                   f'_FG-{args.fine_grain_reward}_LR-{args.lr}_LDO-{args.lora_dropout}_WD-{args.weight_decay}' \
                                   f'_KLC-{args.kl_coef}_EW-{args.entropy_weight}_RS-{args.reward_scale}_RW-{args.whiten_reward}' \
@@ -28,7 +28,7 @@ if __name__ == '__main__':
                                   f'_GAS-{args.gradient_accumulation_steps}_LB-{args.learn_batch}_RA_{args.reward_alpha}' \
                                   f'_{args.model_name_suffix}'
             else:
-                args.model_name = f'RL_{args.backbone[5:]}Total_init_LM-{args.lm_head}_VM-{args.vague_mapping}_NR-20.1_SN-{args.sample_num}_Q-{args.quantization}_T{len(args.RL_train_tasks.split(","))}'
+                args.model_name = f'RL_Total_init_LM-{args.lm_head}_VM-{args.vague_mapping}_NR-20.1_SN-{args.sample_num}_Q-{args.quantization}_T{len(args.RL_train_tasks.split(","))}'
         args.output = f'{args.output}{args.model_name}/'
 
     # if args.log_to_file:

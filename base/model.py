@@ -1,4 +1,6 @@
 import os
+import re
+
 import bitsandbytes as bnb
 import torch
 from einops.layers.torch import Rearrange
@@ -106,13 +108,16 @@ class BaseModel(nn.Module):       # name
         torch.save(state_dict, os.path.join(self.args.output, f"{name}_{self.args.train_stage}.pth"))
 
     def load_parameters(self, load_file):
-        # self.args.load: xxx/{name}_{train_stage}
+        # self.args.load: 'xxx/Epoch{xx}_SFT' or 'xxx/{xx}step_RL'
         if load_file is not None and os.path.exists(f"{load_file}.pth"):
             state_dict = torch.load(f"{load_file}.pth", map_location=self.device)
             results = self.load_state_dict(state_dict['params'], strict=False)
             assert len(results.unexpected_keys) == 0, results.unexpected_keys
             print(f'{self.args.train_stage} model loaded of file {load_file}')
-            return int(load_file.split('/')[-1][5:7]) if self.args.train_stage in ['SFT', 'SFT_Merge'] else int(load_file.split('/')[-1][:-7])
+            if self.args.train_stage in ['SFT', 'SFT_Merge']:
+                return int(re.findall(r'.+/Epoch(\d+)_SFT$', load_file)[0])     # return train epoch number
+            elif self.args.train_stage in ['RL', 'RL_Merge']:
+                return int(re.findall(r'.+/(\d+)step_RL$', load_file)[0])       # return train step number
         else:
             return 0
 
@@ -241,6 +246,7 @@ class BaseModel(nn.Module):       # name
 
     @property
     def actor_named_parameters(self):
+        # get all trainable params of actor scope.
         if self.args.train_stage == 'SFT' and self.args.full_fine_tune:
             return {n: p for n, p in self.named_parameters() if p.requires_grad}
         else:
@@ -248,6 +254,7 @@ class BaseModel(nn.Module):       # name
 
     @property
     def critic_named_parameters(self):
+        # get all trainable params of critic scope.
         critic_head_params = {n: p for n, p in self.critic_value_head.named_parameters()}
         critic_lora_params = {n: p for n, p in self.named_parameters() if self.critic_lora_scope in n and 'lora' in n}
         critic_head_params.update(critic_lora_params)
@@ -285,6 +292,13 @@ class BaseModel(nn.Module):       # name
             raise NotImplementedError
 
     def forward(self, scope, input_ids, **kwargs):
+        """
+        activate specific lora adaptor according specific scope.
+        :param scope: in [actor_scope, critic_scope, base]
+        :param input_ids:
+        :param kwargs:
+        :return:
+        """
         if not hasattr(self, 'lora_model'):
             return self.model(input_ids=input_ids, **kwargs)
 

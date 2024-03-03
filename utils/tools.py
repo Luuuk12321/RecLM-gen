@@ -47,12 +47,25 @@ def save_pickle(data, filename):
 
 
 def side_tokenizer(text: list[str] or list[list[str]], padding_side, tokenizer, **kwargs):
+    """
+    :param text:
+    :param padding_side: in ['left', 'right']
+    :param tokenizer:
+    :param kwargs:
+    :return:
+    """
     tokenizer.padding_side = padding_side
     tokenizer.truncation_side = padding_side
     return tokenizer.batch_encode_plus(text, **kwargs)
 
 
 def sync_dict(accelerator, data: dict):
+    """
+    get the synchronized dict cross all processes while use multi gpus
+    :param accelerator:
+    :param data:
+    :return:
+    """
     temp = copy.deepcopy(data)
     data_tensor = torch.tensor([v for k, v in data.items()], device=accelerator.device)
     data_tensor = accelerator.reduce(data_tensor)
@@ -62,6 +75,17 @@ def sync_dict(accelerator, data: dict):
 
 
 def get_item_list(ip, users, sub_sequential, k, candidate_item_list=None, target_category=None, port=12621, immediately=True):
+    """
+    :param ip:
+    :param users: user id
+    :param sub_sequential: user history, [[item_1, ..., item_n]]
+    :param k: top_k recommendation
+    :param candidate_item_list: candidate items, [[item_1, ..., item_m]]
+    :param target_category: '+C': only keep items in C. '-C': exclude items in C.
+    :param port:
+    :param immediately: don't wait for batching
+    :return: return the recommendation list with k items that complying the params.
+    """
     url = f"http://{ip}:{port}/inference"
     data = {
         "users": users,
@@ -87,16 +111,24 @@ def get_item_list(ip, users, sub_sequential, k, candidate_item_list=None, target
     return response.json()['inference'][0]
 
 
-def get_item_ranking(ip, users, sub_sequential, candidate_item_list=None, port=12621, immediately=True):
+def get_item_ranking(ip, users, sub_sequential, candidate_item_list, port=12621, immediately=True):
+    """
+    :param ip:
+    :param users: user id
+    :param sub_sequential: user history
+    :param candidate_item_list:
+    :param port:
+    :param immediately:
+    :return: return the rank of each item in candidate_item_list among total item corpus.
+    """
     url = f"http://{ip}:{port}/ranking"
     data = {
         "users": users,
         "item_lengths": [len(_) for _ in sub_sequential],
         "item_lists": sub_sequential,
+        "candidate_item_lists": candidate_item_list,
         "immediately": 1 if immediately else 0
     }
-    if candidate_item_list is not None:
-        data['candidate_item_lists'] = candidate_item_list
     headers = {
         "Content-Type": "application/json; charset=utf-8",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/83.0.4103.97 Safari/537.36 Edg/83.0.478.45",
@@ -108,17 +140,6 @@ def get_item_ranking(ip, users, sub_sequential, candidate_item_list=None, port=1
     response = requests.post(url, json=data, headers=headers)
     assert response.status_code == 200
     return response.json()['ranking'][0]
-
-
-# helper functions
-def exists(val):
-    return val is not None
-
-
-def default(val, d):
-    if exists(val):
-        return val
-    return d() if callable(d) else d
 
 
 def masked_mean(seq, mask, dim=None):
@@ -153,22 +174,6 @@ def whiten(values, masks, shift_mean=True, dim=None):
     return whitened
 
 
-def pad_sequence_fixed(sequences, *args, **kwargs):
-    first_el = sequences[0]
-    has_no_dimension = first_el.ndim == 0
-
-    # if no dimensions, add a single dimension
-    if has_no_dimension:
-        sequences = tuple(map(lambda t: t[None], sequences))
-
-    out = pad_sequence(sequences, *args, **kwargs)
-
-    if has_no_dimension:
-        out = rearrange(out, '... 1 -> ...')
-
-    return out
-
-
 def log(t, eps=1e-20):
     return torch.log(t.clamp(min=eps))
 
@@ -182,31 +187,6 @@ def log_prob(prob, indices):
 def shift(t, value=0, shift=1, dim=-1):
     zeros = (0, 0) * (-dim - 1)
     return F.pad(t, (*zeros, shift, -shift), value=value)
-
-
-def masked_entropy(prob, dim=-1, mask=None):
-    entropies = (prob * log(prob)).sum(dim=-1)
-    return masked_mean(entropies, mask=mask)
-
-
-def masked_kl_div(prob1, prob2, action_mask=None, reduce_batch=False):
-    """
-    need to account for variable sequence lengths, therefore not using the built-in functional version
-    """
-    kl_divs = (prob1 * (log(prob1) - log(prob2))).sum(dim=-1)
-    loss = masked_mean(kl_divs, action_mask)
-
-    if reduce_batch:
-        return loss.mean()
-
-    return loss
-
-
-def clipped_value_loss(values, rewards, old_values, clip):
-    value_clipped = old_values + (values - old_values).clamp(-clip, clip)
-    value_loss_1 = (value_clipped.flatten() - rewards) ** 2
-    value_loss_2 = (values.flatten() - rewards) ** 2
-    return torch.mean(torch.max(value_loss_1, value_loss_2))
 
 
 def eval_decorator(fn):
