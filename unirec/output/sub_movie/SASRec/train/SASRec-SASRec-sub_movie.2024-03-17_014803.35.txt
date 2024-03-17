@@ -1,0 +1,402 @@
+[INFO] SASRec-SASRec-sub_movie: config={'gpu_id': 0, 'use_gpu': True, 'seed': 2022, 'state': 'INFO', 'verbose': 2, 'saved': True, 'use_tensorboard': False, 'use_wandb': 0, 'init_method': 'normal', 'init_std': 0.02, 'init_mean': 0.0, 'scheduler': 'reduce', 'scheduler_factor': 0.5, 'time_seq': 0, 'seq_last': False, 'has_user_emb': False, 'has_user_bias': 0, 'has_item_bias': 0, 'use_features': False, 'use_text_emb': False, 'use_position_emb': True, 'load_pretrained_model': False, 'embedding_size': 128, 'hidden_size': 256, 'inner_size': 256, 'dropout_prob': 0.0, 'epochs': 100, 'batch_size': 1024, 'learning_rate': 0.001, 'optimizer': 'adam', 'eval_step': 1, 'early_stop': 10, 'clip_grad_norm': None, 'weight_decay': 0.0, 'num_workers': 4, 'persistent_workers': False, 'pin_memory': False, 'shuffle_train': 1, 'use_pre_item_emb': 0, 'loss_type': 'fullsoftmax', 'ccl_w': 150, 'ccl_m': 0.4, 'distance_type': 'dot', 'metrics': "['hit@10;20', 'ndcg@10;20']", 'key_metric': 'ndcg@10', 'test_protocol': 'one_vs_all', 'valid_protocol': 'one_vs_all', 'test_batch_size': 100, 'model': 'SASRec', 'dataloader': 'SeqRecDataset', 'max_seq_len': 10, 'history_mask_mode': 'autoregressive', 'tau': 1.0, 'enable_morec': 0, 'morec_objectives': ['fairness', 'alignment', 'revenue'], 'morec_objective_controller': 'PID', 'morec_ngroup': [10, 10, -1], 'morec_alpha': 0.1, 'morec_lambda': 0.2, 'morec_expect_loss': 0.2, 'morec_beta_min': 0.6, 'morec_beta_max': 1.3, 'morec_K_p': 0.01, 'morec_K_i': 0.001, 'morec_objective_weights': '[0.3,0.3,0.4]', 'n_layers': 2, 'n_heads': 2, 'hidden_dropout_prob': 0.5, 'attn_dropout_prob': 0.5, 'hidden_act': 'gelu', 'layer_norm_eps': '1e-12', 'group_size': -1, 'n_items': 18730, 'n_neg_test_from_sampling': 0, 'n_neg_train_from_sampling': 0, 'n_neg_valid_from_sampling': 0, 'n_users': 13219, 'test_file_format': 'user-item', 'train_file_format': 'user-item', 'user_history_file_format': 'user-item_seq', 'valid_file_format': 'user-item', 'base_model': 'GRU', 'config_dir': 'unirec/config', 'dataset': 'sub_movie', 'dataset_path': '/home/lws/projects/unirec/data/sub_movie', 'exp_name': 'SASRec-SASRec-sub_movie', 'freeze': 0, 'grad_clip_value': -1.0, 'n_sample_neg_train': 0, 'neg_by_pop_alpha': 1.0, 'num_workers_test': 0, 'output_path': '/home/lws/projects/unirec/output/sub_movie/SASRec/train', 'train_type': 'Base', 'user_history_filename': 'user_history', 'cmd_args': {'base_model': 'GRU', 'batch_size': 1024, 'config_dir': 'unirec/config', 'dataloader': 'SeqRecDataset', 'dataset': 'sub_movie', 'dataset_path': '/home/lws/projects/unirec/data/sub_movie', 'dropout_prob': 0.0, 'early_stop': 10, 'embedding_size': 128, 'epochs': 100, 'exp_name': 'SASRec-SASRec-sub_movie', 'freeze': 0, 'grad_clip_value': -1.0, 'has_item_bias': 0, 'has_user_bias': 0, 'hidden_size': 256, 'history_mask_mode': 'autoregressive', 'key_metric': 'ndcg@10', 'learning_rate': 0.001, 'loss_type': 'fullsoftmax', 'max_seq_len': 10, 'metrics': "['hit@10;20', 'ndcg@10;20']", 'model': 'SASRec', 'n_sample_neg_train': 0, 'neg_by_pop_alpha': 1.0, 'num_workers': 4, 'num_workers_test': 0, 'output_path': '/home/lws/projects/unirec/output/sub_movie/SASRec/train', 'scheduler_factor': 0.5, 'shuffle_train': 1, 'test_protocol': 'one_vs_all', 'train_type': 'Base', 'use_pre_item_emb': 0, 'use_wandb': 0, 'user_history_file_format': 'user-item_seq', 'user_history_filename': 'user_history', 'valid_protocol': 'one_vs_all', 'verbose': 2, 'weight_decay': 0.0, 'logger_time_str': '2024-03-17_014803', 'logger_rand': 35}, 'device': device(type='cuda'), 'task': 'train', 'logger_time_str': '2024-03-17_014803', 'logger_rand': 35}
+[INFO] SASRec-SASRec-sub_movie: Loading user history from user_history ...
+[INFO] SASRec-SASRec-sub_movie: Done. 13219 of users have history.
+[INFO] SASRec-SASRec-sub_movie: Constructing dataset of task type: train
+[INFO] SASRec-SASRec-sub_movie: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-sub_movie: Constructing dataset of task type: valid
+[INFO] SASRec-SASRec-sub_movie: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-sub_movie: SASRec(
+  (scorer_layers): InnerProductScorer()
+  (item_embedding): Embedding(18730, 128, padding_idx=0)
+  (position_embedding): Embedding(11, 128)
+  (trm_encoder): TransformerEncoder(
+    (layer): ModuleList(
+      (0-1): 2 x TransformerLayer(
+        (multi_head_attention): MultiHeadAttention(
+          (query): Linear(in_features=128, out_features=128, bias=True)
+          (key): Linear(in_features=128, out_features=128, bias=True)
+          (value): Linear(in_features=128, out_features=128, bias=True)
+          (attn_dropout): Dropout(p=0.5, inplace=False)
+          (dense): Linear(in_features=128, out_features=128, bias=True)
+          (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+          (out_dropout): Dropout(p=0.5, inplace=False)
+        )
+        (feed_forward): FeedForward(
+          (dense_1): Linear(in_features=128, out_features=256, bias=True)
+          (intermediate_act_fn): GELU(approximate='none')
+          (dense_2): Linear(in_features=256, out_features=128, bias=True)
+          (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+          (dropout): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+  )
+  (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+  (dropout): Dropout(p=0.5, inplace=False)
+)
+Trainable parameter number: 2664064
+All trainable parameters:
+item_embedding.weight : torch.Size([18730, 128])
+position_embedding.weight : torch.Size([11, 128])
+trm_encoder.layer.0.multi_head_attention.query.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.query.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.key.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.key.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.value.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.value.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.dense.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.dense.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.0.feed_forward.dense_1.weight : torch.Size([256, 128])
+trm_encoder.layer.0.feed_forward.dense_1.bias : torch.Size([256])
+trm_encoder.layer.0.feed_forward.dense_2.weight : torch.Size([128, 256])
+trm_encoder.layer.0.feed_forward.dense_2.bias : torch.Size([128])
+trm_encoder.layer.0.feed_forward.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.0.feed_forward.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.query.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.query.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.key.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.key.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.value.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.value.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.dense.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.dense.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.1.feed_forward.dense_1.weight : torch.Size([256, 128])
+trm_encoder.layer.1.feed_forward.dense_1.bias : torch.Size([256])
+trm_encoder.layer.1.feed_forward.dense_2.weight : torch.Size([128, 256])
+trm_encoder.layer.1.feed_forward.dense_2.bias : torch.Size([128])
+trm_encoder.layer.1.feed_forward.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.1.feed_forward.LayerNorm.bias : torch.Size([128])
+LayerNorm.weight : torch.Size([128])
+LayerNorm.bias : torch.Size([128])
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 0 evaluating [time: 8.97s, ndcg@10: 0.012598]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.012936904221516114 hit@20:0.013239521864124679 ndcg@10:0.012598244492067324 ndcg@20:0.012673288837000085
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 0 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 1
+[INFO] SASRec-SASRec-sub_movie: epoch 1 training [time: 25.60s, train loss: 6112.3993]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 1 evaluating [time: 2.88s, ndcg@10: 0.075878]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.10137691027386897 hit@20:0.12808291723407475 ndcg@10:0.07587823417140593 ndcg@20:0.08257664683617069
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 1 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 1, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 2
+[INFO] SASRec-SASRec-sub_movie: epoch 2 training [time: 22.65s, train loss: 5486.4370]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 2 evaluating [time: 2.86s, ndcg@10: 0.093914]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.12656982902103192 hit@20:0.1604630049931911 ndcg@10:0.09391427068601509 ndcg@20:0.10245042860158193
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 2 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 2, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 3
+[INFO] SASRec-SASRec-sub_movie: epoch 3 training [time: 23.44s, train loss: 5269.2538]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 3 evaluating [time: 3.09s, ndcg@10: 0.102814]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.14094416704493873 hit@20:0.17513996065970647 ndcg@10:0.10281385031679081 ndcg@20:0.11138446144198083
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 3 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 3, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 4
+[INFO] SASRec-SASRec-sub_movie: epoch 4 training [time: 20.38s, train loss: 5160.9281]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 4 evaluating [time: 2.53s, ndcg@10: 0.106288]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.14601301255863217 hit@20:0.18081404145861704 ndcg@10:0.10628831782527656 ndcg@20:0.11509134685389728
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 4 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 4, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 5
+[INFO] SASRec-SASRec-sub_movie: epoch 5 training [time: 12.80s, train loss: 5096.3729]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 5 evaluating [time: 2.39s, ndcg@10: 0.110180]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1495687698592828 hit@20:0.18505068845513695 ndcg@10:0.11018010454865095 ndcg@20:0.11907137918519294
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 5 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 5, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 6
+[INFO] SASRec-SASRec-sub_movie: epoch 6 training [time: 12.95s, train loss: 5050.5859]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 6 evaluating [time: 2.28s, ndcg@10: 0.109973]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.15130882130428203 hit@20:0.18565592374035406 ndcg@10:0.10997344592689137 ndcg@20:0.11862835821347324
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 6, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 7
+[INFO] SASRec-SASRec-sub_movie: epoch 7 training [time: 13.10s, train loss: 5017.1759]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 7 evaluating [time: 2.44s, ndcg@10: 0.113838]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1547132697836284 hit@20:0.19133000453926463 ndcg@10:0.11383776977974469 ndcg@20:0.12306670593151292
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 7 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 7, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 8
+[INFO] SASRec-SASRec-sub_movie: epoch 8 training [time: 12.47s, train loss: 4988.1584]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 8 evaluating [time: 2.39s, ndcg@10: 0.112868]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.15410803449841126 hit@20:0.1921622030564382 ndcg@10:0.11286755300536759 ndcg@20:0.12243235773563789
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 8, learning rate: 0.001
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 9
+[INFO] SASRec-SASRec-sub_movie: epoch 9 training [time: 12.34s, train loss: 4964.3611]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 9 evaluating [time: 2.39s, ndcg@10: 0.113522]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.15463761537297624 hit@20:0.19155696777122105 ndcg@10:0.11352245550243906 ndcg@20:0.12282531117226371
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 9, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 10
+[INFO] SASRec-SASRec-sub_movie: epoch 10 training [time: 12.59s, train loss: 4885.7803]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 10 evaluating [time: 2.51s, ndcg@10: 0.117092]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16016038735058255 hit@20:0.1971553941594795 ndcg@10:0.11709182512952848 ndcg@20:0.12639437262156067
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 10 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 10, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 11
+[INFO] SASRec-SASRec-sub_movie: epoch 11 training [time: 13.17s, train loss: 4862.8214]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 11 evaluating [time: 2.63s, ndcg@10: 0.116942]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.159328188833409 hit@20:0.1963988500529581 ndcg@10:0.11694195503821381 ndcg@20:0.12625513965188984
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 11, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 12
+[INFO] SASRec-SASRec-sub_movie: epoch 12 training [time: 13.51s, train loss: 4849.5344]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 12 evaluating [time: 2.33s, ndcg@10: 0.118333]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1606143138144954 hit@20:0.200105916174913 ndcg@10:0.1183333529343697 ndcg@20:0.12830903104982583
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 12 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 12, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 13
+[INFO] SASRec-SASRec-sub_movie: epoch 13 training [time: 12.45s, train loss: 4835.4011]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 13 evaluating [time: 2.40s, ndcg@10: 0.119038]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16220305643819036 hit@20:0.19821455590860948 ndcg@10:0.11903823799407022 ndcg@20:0.12809003936214522
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 13 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 13, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 14
+[INFO] SASRec-SASRec-sub_movie: epoch 14 training [time: 13.04s, train loss: 4827.9972]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 14 evaluating [time: 2.40s, ndcg@10: 0.118638]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16068996822514753 hit@20:0.1991980632470873 ndcg@10:0.11863801471485975 ndcg@20:0.12831861872560774
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 14, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 15
+[INFO] SASRec-SASRec-sub_movie: epoch 15 training [time: 13.24s, train loss: 4818.6764]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 15 evaluating [time: 2.34s, ndcg@10: 0.119226]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1625056740807989 hit@20:0.20063549704947797 ndcg@10:0.11922599384774615 ndcg@20:0.12880264954857257
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 15 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 15, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 16
+[INFO] SASRec-SASRec-sub_movie: epoch 16 training [time: 12.27s, train loss: 4813.1754]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 16 evaluating [time: 2.27s, ndcg@10: 0.119204]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16076562263579966 hit@20:0.20055984263882584 ndcg@10:0.1192041434742958 ndcg@20:0.12923516095232349
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 16, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 17
+[INFO] SASRec-SASRec-sub_movie: epoch 17 training [time: 12.32s, train loss: 4804.4441]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 17 evaluating [time: 2.38s, ndcg@10: 0.120602]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1625056740807989 hit@20:0.2002572249962173 ndcg@10:0.12060213676244114 ndcg@20:0.13011254195820035
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 17 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 17, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 18
+[INFO] SASRec-SASRec-sub_movie: epoch 18 training [time: 12.21s, train loss: 4800.9684]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 18 evaluating [time: 2.35s, ndcg@10: 0.121572]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.165229232864276 hit@20:0.20320774701165079 ndcg@10:0.12157154603641812 ndcg@20:0.13113184832732575
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 18 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 18, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 19
+[INFO] SASRec-SASRec-sub_movie: epoch 19 training [time: 13.72s, train loss: 4793.9425]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 19 evaluating [time: 2.37s, ndcg@10: 0.120759]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16401876229384174 hit@20:0.20207293085186867 ndcg@10:0.12075887755478534 ndcg@20:0.13034570925687716
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 19, learning rate: 0.0005
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 20
+[INFO] SASRec-SASRec-sub_movie: epoch 20 training [time: 12.39s, train loss: 4788.7356]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 20 evaluating [time: 2.40s, ndcg@10: 0.120701]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16386745347253745 hit@20:0.2022998940838251 ndcg@10:0.12070117709821421 ndcg@20:0.13038890728075717
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 20, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 21
+[INFO] SASRec-SASRec-sub_movie: epoch 21 training [time: 12.35s, train loss: 4748.4809]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 21 evaluating [time: 2.53s, ndcg@10: 0.121849]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16462399757905885 hit@20:0.2012407323346951 ndcg@10:0.12184860969502707 ndcg@20:0.1310969573499654
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 21 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 21, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 22
+[INFO] SASRec-SASRec-sub_movie: epoch 22 training [time: 12.57s, train loss: 4741.1707]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 22 evaluating [time: 2.34s, ndcg@10: 0.122123]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16606143138144955 hit@20:0.20320774701165079 ndcg@10:0.1221232982626347 ndcg@20:0.13146096545646815
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 22 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 22, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 23
+[INFO] SASRec-SASRec-sub_movie: epoch 23 training [time: 12.80s, train loss: 4735.3735]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 23 evaluating [time: 2.82s, ndcg@10: 0.121519]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16485096081101527 hit@20:0.20351036465425934 ndcg@10:0.12151865125902708 ndcg@20:0.13130241281314414
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 23, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 24
+[INFO] SASRec-SASRec-sub_movie: epoch 24 training [time: 12.48s, train loss: 4731.4287]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 24 evaluating [time: 2.66s, ndcg@10: 0.124390]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16848237252231804 hit@20:0.20570434256317144 ndcg@10:0.12439006219752774 ndcg@20:0.13379281261705622
+[INFO] SASRec-SASRec-sub_movie: Saving best model at epoch 24 to /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth
+[INFO] SASRec-SASRec-sub_movie: epoch: 24, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 25
+[INFO] SASRec-SASRec-sub_movie: epoch 25 training [time: 13.16s, train loss: 4725.8456]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 25 evaluating [time: 2.46s, ndcg@10: 0.121001]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16311090936601605 hit@20:0.20033287940686942 ndcg@10:0.12100146913464715 ndcg@20:0.13041462609696622
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 25, learning rate: 0.00025
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 26
+[INFO] SASRec-SASRec-sub_movie: epoch 26 training [time: 13.11s, train loss: 4724.0734]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 26 evaluating [time: 2.40s, ndcg@10: 0.123867]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1663640490240581 hit@20:0.20547737933121502 ndcg@10:0.1238666865820748 ndcg@20:0.13373314219655377
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 26, learning rate: 0.000125
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 27
+[INFO] SASRec-SASRec-sub_movie: epoch 27 training [time: 12.46s, train loss: 4701.8895]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 27 evaluating [time: 2.35s, ndcg@10: 0.122151]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16530488727492812 hit@20:0.20154334997730367 ndcg@10:0.12215140155662645 ndcg@20:0.13130858006693422
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 3 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 27, learning rate: 0.000125
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 28
+[INFO] SASRec-SASRec-sub_movie: epoch 28 training [time: 12.19s, train loss: 4698.4047]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 28 evaluating [time: 2.45s, ndcg@10: 0.123452]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.1662127402027538 hit@20:0.20403994552882432 ndcg@10:0.12345155261998367 ndcg@20:0.13300570334765704
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 4 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 28, learning rate: 6.25e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 29
+[INFO] SASRec-SASRec-sub_movie: epoch 29 training [time: 12.24s, train loss: 4688.7111]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 29 evaluating [time: 2.35s, ndcg@10: 0.123751]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16643970343471023 hit@20:0.2022998940838251 ndcg@10:0.12375096206993483 ndcg@20:0.1328295028186289
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 5 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 29, learning rate: 6.25e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 30
+[INFO] SASRec-SASRec-sub_movie: epoch 30 training [time: 12.37s, train loss: 4683.9376]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 30 evaluating [time: 2.41s, ndcg@10: 0.123510]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16643970343471023 hit@20:0.20388863670752005 ndcg@10:0.1235096287501844 ndcg@20:0.13300149794272026
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 6 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 30, learning rate: 3.125e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 31
+[INFO] SASRec-SASRec-sub_movie: epoch 31 training [time: 12.53s, train loss: 4677.6073]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 31 evaluating [time: 2.39s, ndcg@10: 0.121932]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.164699651989711 hit@20:0.2017703132092601 ndcg@10:0.12193154737464751 ndcg@20:0.13135047445091036
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 7 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 31, learning rate: 3.125e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 32
+[INFO] SASRec-SASRec-sub_movie: epoch 32 training [time: 12.25s, train loss: 4677.8739]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 32 evaluating [time: 2.31s, ndcg@10: 0.123722]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16681797548797095 hit@20:0.20373732788621576 ndcg@10:0.12372186903649338 ndcg@20:0.13309897229512643
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 8 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 32, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 33
+[INFO] SASRec-SASRec-sub_movie: epoch 33 training [time: 15.75s, train loss: 4672.3331]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 33 evaluating [time: 2.35s, ndcg@10: 0.122792]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.165229232864276 hit@20:0.20282947495839007 ndcg@10:0.12279194545559188 ndcg@20:0.13234832368434502
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 9 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 33, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 34
+[INFO] SASRec-SASRec-sub_movie: epoch 34 training [time: 12.36s, train loss: 4673.3932]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 34 evaluating [time: 2.39s, ndcg@10: 0.122651]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16568315932818883 hit@20:0.20351036465425934 ndcg@10:0.1226506911785721 ndcg@20:0.13222669364752088
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 10 / 10
+[INFO] SASRec-SASRec-sub_movie: epoch: 34, learning rate: 7.8125e-06
+[INFO] SASRec-SASRec-sub_movie: 
+>> epoch 35
+[INFO] SASRec-SASRec-sub_movie: epoch 35 training [time: 12.51s, train loss: 4671.6966]
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: epoch 35 evaluating [time: 2.30s, ndcg@10: 0.123233]
+[INFO] SASRec-SASRec-sub_movie: complete scores on valid set: 
+hit@10:0.16606143138144955 hit@20:0.2038129822968679 ndcg@10:0.12323252687252276 ndcg@20:0.1328079009751197
+[INFO] SASRec-SASRec-sub_movie: No better score in the epoch. Patience: 11 / 10
+[INFO] SASRec-SASRec-sub_movie: Finished training, best eval result in epoch 24
+[INFO] SASRec-SASRec-sub_movie: Constructing dataset of task type: test
+[INFO] SASRec-SASRec-sub_movie: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-sub_movie: one_vs_all
+[INFO] SASRec-SASRec-sub_movie: Loading model from /home/lws/projects/unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth. The best epoch was 24
+[INFO] SASRec-SASRec-sub_movie: best valid : {'hit@10': 0.16848237252231804, 'hit@20': 0.20570434256317144, 'ndcg@10': 0.12439006219752774, 'ndcg@20': 0.13379281261705622}
+[INFO] SASRec-SASRec-sub_movie: test result: {'hit@10': 0.13534574065668029, 'hit@20': 0.16780148282644877, 'ndcg@10': 0.09935893551618548, 'ndcg@20': 0.10749279163359865}
+[INFO] SASRec-SASRec-sub_movie: Saving test result to /home/lws/projects/unirec/output/sub_movie/SASRec/train/result_SASRec-SASRec-sub_movie.2024-03-17_014803.35.tsv ...
+[INFO] SASRec-SASRec-sub_movie: Mission complete. Time elapsed: 9.92 minutes.

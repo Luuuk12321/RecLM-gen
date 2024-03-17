@@ -57,19 +57,20 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 ## 1. SASRec Server
 
 ### 1.1. SASRec dataset and model
-Model `sub_movie.pth` in `TeacherModel/saved/`.
+Model param is saved in `unirec/output/`.
 
-Dataset files `sub_movie.inter`, `sub_movie.item`, `category.pickle(as same as raw dataset)` in `TeacherModel/dataset/sub_movie/`.
+Dataset files `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl`,  `map.pkl`, `category.pickle(as same as raw dataset)` in `unirec/data/sub_movie/`.
 
-`sub_movie.inter`, `sub_movie.item` is used to train SASRec model in Recbole lib. (from the same data source)
+`train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl` is used to train SASRec model in UniRec lib. (from the same data source)
 
 ### 1.2. SASRec Server start
+We use [UniRec](https://github.com/microsoft/UniRec) to implement and deploy the teacher model.
 The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
 
 For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
 ```shell
-cd TeacherModel/
-python acil.py sub_movie 12621 0 1
+cd unirec/
+./examples/serving/serve_seq_model.sh sub_movie 12621 0 1
 ```
 
 ## 2. SFT stage

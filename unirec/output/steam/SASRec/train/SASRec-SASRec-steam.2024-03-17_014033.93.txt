@@ -1,0 +1,537 @@
+[INFO] SASRec-SASRec-steam: config={'gpu_id': 0, 'use_gpu': True, 'seed': 2022, 'state': 'INFO', 'verbose': 2, 'saved': True, 'use_tensorboard': False, 'use_wandb': 0, 'init_method': 'normal', 'init_std': 0.02, 'init_mean': 0.0, 'scheduler': 'reduce', 'scheduler_factor': 0.5, 'time_seq': 0, 'seq_last': False, 'has_user_emb': False, 'has_user_bias': 0, 'has_item_bias': 0, 'use_features': False, 'use_text_emb': False, 'use_position_emb': True, 'load_pretrained_model': False, 'embedding_size': 128, 'hidden_size': 256, 'inner_size': 256, 'dropout_prob': 0.0, 'epochs': 100, 'batch_size': 1024, 'learning_rate': 0.001, 'optimizer': 'adam', 'eval_step': 1, 'early_stop': 10, 'clip_grad_norm': None, 'weight_decay': 0.0, 'num_workers': 4, 'persistent_workers': False, 'pin_memory': False, 'shuffle_train': 1, 'use_pre_item_emb': 0, 'loss_type': 'fullsoftmax', 'ccl_w': 150, 'ccl_m': 0.4, 'distance_type': 'dot', 'metrics': "['hit@10;20', 'ndcg@10;20']", 'key_metric': 'ndcg@10', 'test_protocol': 'one_vs_all', 'valid_protocol': 'one_vs_all', 'test_batch_size': 100, 'model': 'SASRec', 'dataloader': 'SeqRecDataset', 'max_seq_len': 10, 'history_mask_mode': 'autoregressive', 'tau': 1.0, 'enable_morec': 0, 'morec_objectives': ['fairness', 'alignment', 'revenue'], 'morec_objective_controller': 'PID', 'morec_ngroup': [10, 10, -1], 'morec_alpha': 0.1, 'morec_lambda': 0.2, 'morec_expect_loss': 0.2, 'morec_beta_min': 0.6, 'morec_beta_max': 1.3, 'morec_K_p': 0.01, 'morec_K_i': 0.001, 'morec_objective_weights': '[0.3,0.3,0.4]', 'n_layers': 2, 'n_heads': 2, 'hidden_dropout_prob': 0.5, 'attn_dropout_prob': 0.5, 'hidden_act': 'gelu', 'layer_norm_eps': '1e-12', 'group_size': -1, 'n_items': 8573, 'n_neg_test_from_sampling': 0, 'n_neg_train_from_sampling': 0, 'n_neg_valid_from_sampling': 0, 'n_users': 12659, 'test_file_format': 'user-item', 'train_file_format': 'user-item', 'user_history_file_format': 'user-item_seq', 'valid_file_format': 'user-item', 'base_model': 'GRU', 'config_dir': 'unirec/config', 'dataset': 'steam', 'dataset_path': '/home/lws/projects/unirec/data/steam', 'exp_name': 'SASRec-SASRec-steam', 'freeze': 0, 'grad_clip_value': -1.0, 'n_sample_neg_train': 0, 'neg_by_pop_alpha': 1.0, 'num_workers_test': 0, 'output_path': '/home/lws/projects/unirec/output/steam/SASRec/train', 'train_type': 'Base', 'user_history_filename': 'user_history', 'cmd_args': {'base_model': 'GRU', 'batch_size': 1024, 'config_dir': 'unirec/config', 'dataloader': 'SeqRecDataset', 'dataset': 'steam', 'dataset_path': '/home/lws/projects/unirec/data/steam', 'dropout_prob': 0.0, 'early_stop': 10, 'embedding_size': 128, 'epochs': 100, 'exp_name': 'SASRec-SASRec-steam', 'freeze': 0, 'grad_clip_value': -1.0, 'has_item_bias': 0, 'has_user_bias': 0, 'hidden_size': 256, 'history_mask_mode': 'autoregressive', 'key_metric': 'ndcg@10', 'learning_rate': 0.001, 'loss_type': 'fullsoftmax', 'max_seq_len': 10, 'metrics': "['hit@10;20', 'ndcg@10;20']", 'model': 'SASRec', 'n_sample_neg_train': 0, 'neg_by_pop_alpha': 1.0, 'num_workers': 4, 'num_workers_test': 0, 'output_path': '/home/lws/projects/unirec/output/steam/SASRec/train', 'scheduler_factor': 0.5, 'shuffle_train': 1, 'test_protocol': 'one_vs_all', 'train_type': 'Base', 'use_pre_item_emb': 0, 'use_wandb': 0, 'user_history_file_format': 'user-item_seq', 'user_history_filename': 'user_history', 'valid_protocol': 'one_vs_all', 'verbose': 2, 'weight_decay': 0.0, 'logger_time_str': '2024-03-17_014033', 'logger_rand': 93}, 'device': device(type='cuda'), 'task': 'train', 'logger_time_str': '2024-03-17_014033', 'logger_rand': 93}
+[INFO] SASRec-SASRec-steam: Loading user history from user_history ...
+[INFO] SASRec-SASRec-steam: Done. 12659 of users have history.
+[INFO] SASRec-SASRec-steam: Constructing dataset of task type: train
+[DEBUG] SASRec-SASRec-steam: loading train at 17/03/2024 01:40:34
+[DEBUG] SASRec-SASRec-steam: Finished loading train at 17/03/2024 01:40:34
+[INFO] SASRec-SASRec-steam: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-steam: Constructing dataset of task type: valid
+[DEBUG] SASRec-SASRec-steam: loading valid at 17/03/2024 01:40:34
+[DEBUG] SASRec-SASRec-steam: Finished loading valid at 17/03/2024 01:40:34
+[INFO] SASRec-SASRec-steam: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-steam: SASRec(
+  (scorer_layers): InnerProductScorer()
+  (item_embedding): Embedding(8573, 128, padding_idx=0)
+  (position_embedding): Embedding(11, 128)
+  (trm_encoder): TransformerEncoder(
+    (layer): ModuleList(
+      (0-1): 2 x TransformerLayer(
+        (multi_head_attention): MultiHeadAttention(
+          (query): Linear(in_features=128, out_features=128, bias=True)
+          (key): Linear(in_features=128, out_features=128, bias=True)
+          (value): Linear(in_features=128, out_features=128, bias=True)
+          (attn_dropout): Dropout(p=0.5, inplace=False)
+          (dense): Linear(in_features=128, out_features=128, bias=True)
+          (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+          (out_dropout): Dropout(p=0.5, inplace=False)
+        )
+        (feed_forward): FeedForward(
+          (dense_1): Linear(in_features=128, out_features=256, bias=True)
+          (intermediate_act_fn): GELU(approximate='none')
+          (dense_2): Linear(in_features=256, out_features=128, bias=True)
+          (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+          (dropout): Dropout(p=0.5, inplace=False)
+        )
+      )
+    )
+  )
+  (LayerNorm): LayerNorm((128,), eps=1e-12, elementwise_affine=True)
+  (dropout): Dropout(p=0.5, inplace=False)
+)
+Trainable parameter number: 1363968
+All trainable parameters:
+item_embedding.weight : torch.Size([8573, 128])
+position_embedding.weight : torch.Size([11, 128])
+trm_encoder.layer.0.multi_head_attention.query.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.query.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.key.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.key.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.value.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.value.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.dense.weight : torch.Size([128, 128])
+trm_encoder.layer.0.multi_head_attention.dense.bias : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.0.multi_head_attention.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.0.feed_forward.dense_1.weight : torch.Size([256, 128])
+trm_encoder.layer.0.feed_forward.dense_1.bias : torch.Size([256])
+trm_encoder.layer.0.feed_forward.dense_2.weight : torch.Size([128, 256])
+trm_encoder.layer.0.feed_forward.dense_2.bias : torch.Size([128])
+trm_encoder.layer.0.feed_forward.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.0.feed_forward.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.query.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.query.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.key.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.key.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.value.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.value.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.dense.weight : torch.Size([128, 128])
+trm_encoder.layer.1.multi_head_attention.dense.bias : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.1.multi_head_attention.LayerNorm.bias : torch.Size([128])
+trm_encoder.layer.1.feed_forward.dense_1.weight : torch.Size([256, 128])
+trm_encoder.layer.1.feed_forward.dense_1.bias : torch.Size([256])
+trm_encoder.layer.1.feed_forward.dense_2.weight : torch.Size([128, 256])
+trm_encoder.layer.1.feed_forward.dense_2.bias : torch.Size([128])
+trm_encoder.layer.1.feed_forward.LayerNorm.weight : torch.Size([128])
+trm_encoder.layer.1.feed_forward.LayerNorm.bias : torch.Size([128])
+LayerNorm.weight : torch.Size([128])
+LayerNorm.bias : torch.Size([128])
+[DEBUG] SASRec-SASRec-steam: >> Valid before training...
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:07<00:00,  1.83it/s]
+[INFO] SASRec-SASRec-steam: epoch 0 evaluating [time: 7.13s, ndcg@10: 0.000204]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.0005530099541791753 hit@20:0.0018170327065887186 ndcg@10:0.00020372183308542272 ndcg@20:0.0005173925248531754
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 0 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: 
+>> epoch 1
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:11<00:00, 50.46it/s]
+[INFO] SASRec-SASRec-steam: epoch 1 training [time: 11.77s, train loss: 4766.8043]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:02<00:00,  5.05it/s]
+[INFO] SASRec-SASRec-steam: epoch 1 evaluating [time: 2.58s, ndcg@10: 0.030407]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.06098909780376047 hit@20:0.09677674198135566 ndcg@10:0.03040748882357986 ndcg@20:0.03940529521747301
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 1 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 1, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 2
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.07it/s]
+[INFO] SASRec-SASRec-steam: epoch 2 training [time: 10.41s, train loss: 4520.0892]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.13it/s]
+[INFO] SASRec-SASRec-steam: epoch 2 evaluating [time: 1.83s, ndcg@10: 0.046049]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.08413651445726023 hit@20:0.12426923684626323 ndcg@10:0.04604920502401871 ndcg@20:0.056128464898926936
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 2 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 2, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 3
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.27it/s]
+[INFO] SASRec-SASRec-steam: epoch 3 training [time: 10.37s, train loss: 4420.7029]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.51it/s]
+[INFO] SASRec-SASRec-steam: epoch 3 evaluating [time: 1.74s, ndcg@10: 0.055284]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.09906778322009796 hit@20:0.142518565334176 ndcg@10:0.05528389283574567 ndcg@20:0.06622563573973039
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 3 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 3, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 4
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.47it/s]
+[INFO] SASRec-SASRec-steam: epoch 4 training [time: 10.34s, train loss: 4367.9510]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.04it/s]
+[INFO] SASRec-SASRec-steam: epoch 4 evaluating [time: 1.85s, ndcg@10: 0.054624]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.09811976615579081 hit@20:0.14638963501343025 ndcg@10:0.05462405937991072 ndcg@20:0.06678888341161447
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 4, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 5
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.81it/s]
+[INFO] SASRec-SASRec-steam: epoch 5 training [time: 10.28s, train loss: 4335.9420]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.69it/s]
+[INFO] SASRec-SASRec-steam: epoch 5 evaluating [time: 1.70s, ndcg@10: 0.057024]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.10143782588086586 hit@20:0.14575762363722547 ndcg@10:0.05702435192401003 ndcg@20:0.0681399256289132
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 5 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 5, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 6
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.10it/s]
+[INFO] SASRec-SASRec-steam: epoch 6 training [time: 10.40s, train loss: 4312.7736]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.62it/s]
+[INFO] SASRec-SASRec-steam: epoch 6 evaluating [time: 1.71s, ndcg@10: 0.062859]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11020698372570706 hit@20:0.1586348554273977 ndcg@10:0.062858868207161 ndcg@20:0.07504234252724905
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 6 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 6, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 7
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.40it/s]
+[INFO] SASRec-SASRec-steam: epoch 7 training [time: 10.53s, train loss: 4293.4505]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.85it/s]
+[INFO] SASRec-SASRec-steam: epoch 7 evaluating [time: 1.90s, ndcg@10: 0.062154]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.10996997945963027 hit@20:0.15879285827144887 ndcg@10:0.062154103282771614 ndcg@20:0.0744401630594998
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 7, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 8
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.81it/s]
+[INFO] SASRec-SASRec-steam: epoch 8 training [time: 10.28s, train loss: 4277.3294]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:02<00:00,  6.32it/s]
+[INFO] SASRec-SASRec-steam: epoch 8 evaluating [time: 2.06s, ndcg@10: 0.063385]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11075999367988623 hit@20:0.1587138568494233 ndcg@10:0.06338491940647781 ndcg@20:0.07541499957036386
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 8 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 8, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 9
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 55.22it/s]
+[INFO] SASRec-SASRec-steam: epoch 9 training [time: 10.76s, train loss: 4264.9468]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.04it/s]
+[INFO] SASRec-SASRec-steam: epoch 9 evaluating [time: 1.85s, ndcg@10: 0.066101]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11423605624901248 hit@20:0.16226892084057512 ndcg@10:0.06610090213250572 ndcg@20:0.07821489475239549
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 9 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 9, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 10
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.01it/s]
+[INFO] SASRec-SASRec-steam: epoch 10 training [time: 10.42s, train loss: 4253.7323]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.23it/s]
+[INFO] SASRec-SASRec-steam: epoch 10 evaluating [time: 1.80s, ndcg@10: 0.063249]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11344604202875652 hit@20:0.1587138568494233 ndcg@10:0.06324879959496636 ndcg@20:0.07461956701987593
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 10, learning rate: 0.001
+[INFO] SASRec-SASRec-steam: 
+>> epoch 11
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.76it/s]
+[INFO] SASRec-SASRec-steam: epoch 11 training [time: 10.28s, train loss: 4244.9064]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.61it/s]
+[INFO] SASRec-SASRec-steam: epoch 11 evaluating [time: 1.71s, ndcg@10: 0.066041]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11747511455206194 hit@20:0.16566598198767576 ndcg@10:0.06604119816910073 ndcg@20:0.07815043226791563
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-steam: epoch: 11, learning rate: 0.0005
+[INFO] SASRec-SASRec-steam: 
+>> epoch 12
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:12<00:00, 47.28it/s]
+[INFO] SASRec-SASRec-steam: epoch 12 training [time: 12.56s, train loss: 4209.6365]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.71it/s]
+[INFO] SASRec-SASRec-steam: epoch 12 evaluating [time: 1.94s, ndcg@10: 0.065768]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11573708326749882 hit@20:0.16645599620793175 ndcg@10:0.06576795441473306 ndcg@20:0.07847276585811763
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 3 / 10
+[INFO] SASRec-SASRec-steam: epoch: 12, learning rate: 0.0005
+[INFO] SASRec-SASRec-steam: 
+>> epoch 13
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:11<00:00, 52.64it/s]
+[INFO] SASRec-SASRec-steam: epoch 13 training [time: 11.29s, train loss: 4199.8049]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.72it/s]
+[INFO] SASRec-SASRec-steam: epoch 13 evaluating [time: 1.94s, ndcg@10: 0.066553]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11715910886395955 hit@20:0.16677200189603414 ndcg@10:0.06655283831551605 ndcg@20:0.07902071208326848
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 13 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 13, learning rate: 0.0005
+[INFO] SASRec-SASRec-steam: 
+>> epoch 14
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 55.23it/s]
+[INFO] SASRec-SASRec-steam: epoch 14 training [time: 10.76s, train loss: 4192.8034]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.16it/s]
+[INFO] SASRec-SASRec-steam: epoch 14 evaluating [time: 1.82s, ndcg@10: 0.068366]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11945015010270185 hit@20:0.1675620161162901 ndcg@10:0.06836621997396224 ndcg@20:0.08039645370660355
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 14 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 14, learning rate: 0.0005
+[INFO] SASRec-SASRec-steam: 
+>> epoch 15
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:13<00:00, 44.47it/s]
+[INFO] SASRec-SASRec-steam: epoch 15 training [time: 13.36s, train loss: 4187.7593]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.58it/s]
+[INFO] SASRec-SASRec-steam: epoch 15 evaluating [time: 1.72s, ndcg@10: 0.067015]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11644809606572919 hit@20:0.16803602464844367 ndcg@10:0.06701501126932176 ndcg@20:0.07997702901213319
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 15, learning rate: 0.0005
+[INFO] SASRec-SASRec-steam: 
+>> epoch 16
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:11<00:00, 53.46it/s]
+[INFO] SASRec-SASRec-steam: epoch 16 training [time: 11.11s, train loss: 4183.7836]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.28it/s]
+[INFO] SASRec-SASRec-steam: epoch 16 evaluating [time: 1.79s, ndcg@10: 0.067788]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11723811028598514 hit@20:0.16969505451098119 ndcg@10:0.06778753423065287 ndcg@20:0.08092464915168228
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-steam: epoch: 16, learning rate: 0.00025
+[INFO] SASRec-SASRec-steam: 
+>> epoch 17
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.47it/s]
+[INFO] SASRec-SASRec-steam: epoch 17 training [time: 10.34s, train loss: 4164.8241]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.27it/s]
+[INFO] SASRec-SASRec-steam: epoch 17 evaluating [time: 1.79s, ndcg@10: 0.068590]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11952915152472744 hit@20:0.169142044556802 ndcg@10:0.06858994910845655 ndcg@20:0.0810625295356095
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 17 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 17, learning rate: 0.00025
+[INFO] SASRec-SASRec-steam: 
+>> epoch 18
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.30it/s]
+[INFO] SASRec-SASRec-steam: epoch 18 training [time: 10.37s, train loss: 4160.2749]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.16it/s]
+[INFO] SASRec-SASRec-steam: epoch 18 evaluating [time: 1.82s, ndcg@10: 0.068746]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11984515721282983 hit@20:0.16930004740085322 ndcg@10:0.06874568442775458 ndcg@20:0.0811790917811427
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 18 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 18, learning rate: 0.00025
+[INFO] SASRec-SASRec-steam: 
+>> epoch 19
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.18it/s]
+[INFO] SASRec-SASRec-steam: epoch 19 training [time: 10.39s, train loss: 4157.6855]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.40it/s]
+[INFO] SASRec-SASRec-steam: epoch 19 evaluating [time: 1.76s, ndcg@10: 0.069214]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11952915152472744 hit@20:0.1722231000158003 ndcg@10:0.06921366238428531 ndcg@20:0.08243409043844704
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 19 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 19, learning rate: 0.00025
+[INFO] SASRec-SASRec-steam: 
+>> epoch 20
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.24it/s]
+[INFO] SASRec-SASRec-steam: epoch 20 training [time: 10.38s, train loss: 4153.7027]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.13it/s]
+[INFO] SASRec-SASRec-steam: epoch 20 evaluating [time: 1.83s, ndcg@10: 0.068973]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.12016116290093222 hit@20:0.17048506873123717 ndcg@10:0.06897344483351346 ndcg@20:0.08165340570612718
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 20, learning rate: 0.00025
+[INFO] SASRec-SASRec-steam: 
+>> epoch 21
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 58.40it/s]
+[INFO] SASRec-SASRec-steam: epoch 21 training [time: 10.17s, train loss: 4151.2177]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.70it/s]
+[INFO] SASRec-SASRec-steam: epoch 21 evaluating [time: 1.70s, ndcg@10: 0.068533]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11897614157054827 hit@20:0.169142044556802 ndcg@10:0.06853254386674333 ndcg@20:0.08117897546037635
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-steam: epoch: 21, learning rate: 0.000125
+[INFO] SASRec-SASRec-steam: 
+>> epoch 22
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.22it/s]
+[INFO] SASRec-SASRec-steam: epoch 22 training [time: 10.57s, train loss: 4141.2419]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.22it/s]
+[INFO] SASRec-SASRec-steam: epoch 22 evaluating [time: 1.81s, ndcg@10: 0.068841]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11929214725865066 hit@20:0.1694580502449044 ndcg@10:0.06884115379740402 ndcg@20:0.08148276133467598
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 3 / 10
+[INFO] SASRec-SASRec-steam: epoch: 22, learning rate: 0.000125
+[INFO] SASRec-SASRec-steam: 
+>> epoch 23
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.93it/s]
+[INFO] SASRec-SASRec-steam: epoch 23 training [time: 10.43s, train loss: 4139.2380]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.16it/s]
+[INFO] SASRec-SASRec-steam: epoch 23 evaluating [time: 1.82s, ndcg@10: 0.068389]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11850213303839469 hit@20:0.16922104597882762 ndcg@10:0.06838891747265206 ndcg@20:0.08119219467656798
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 4 / 10
+[INFO] SASRec-SASRec-steam: epoch: 23, learning rate: 6.25e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 24
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 55.49it/s]
+[INFO] SASRec-SASRec-steam: epoch 24 training [time: 10.70s, train loss: 4132.8315]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.18it/s]
+[INFO] SASRec-SASRec-steam: epoch 24 evaluating [time: 1.82s, ndcg@10: 0.068864]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11968715436877864 hit@20:0.17016906304313478 ndcg@10:0.06886383580014552 ndcg@20:0.08158664517849118
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 5 / 10
+[INFO] SASRec-SASRec-steam: epoch: 24, learning rate: 6.25e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 25
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:11<00:00, 53.99it/s]
+[INFO] SASRec-SASRec-steam: epoch 25 training [time: 11.00s, train loss: 4132.0609]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.51it/s]
+[INFO] SASRec-SASRec-steam: epoch 25 evaluating [time: 1.73s, ndcg@10: 0.068933]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.12008216147890662 hit@20:0.17095907726339074 ndcg@10:0.06893341543271597 ndcg@20:0.08171388986195124
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 6 / 10
+[INFO] SASRec-SASRec-steam: epoch: 25, learning rate: 3.125e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 26
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 54.29it/s]
+[INFO] SASRec-SASRec-steam: epoch 26 training [time: 10.94s, train loss: 4129.0494]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.69it/s]
+[INFO] SASRec-SASRec-steam: epoch 26 evaluating [time: 1.70s, ndcg@10: 0.068737]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11873913730447148 hit@20:0.16969505451098119 ndcg@10:0.068736649004226 ndcg@20:0.08159726218217268
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 7 / 10
+[INFO] SASRec-SASRec-steam: epoch: 26, learning rate: 3.125e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 27
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.66it/s]
+[INFO] SASRec-SASRec-steam: epoch 27 training [time: 10.48s, train loss: 4128.8979]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.08it/s]
+[INFO] SASRec-SASRec-steam: epoch 27 evaluating [time: 1.84s, ndcg@10: 0.069111]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.12047716858903461 hit@20:0.17103807868541634 ndcg@10:0.06911139007903608 ndcg@20:0.08179529952583862
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 8 / 10
+[INFO] SASRec-SASRec-steam: epoch: 27, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 28
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 58.02it/s]
+[INFO] SASRec-SASRec-steam: epoch 28 training [time: 10.24s, train loss: 4125.7100]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.71it/s]
+[INFO] SASRec-SASRec-steam: epoch 28 evaluating [time: 1.69s, ndcg@10: 0.068858]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11984515721282983 hit@20:0.17088007584136514 ndcg@10:0.06885786330459594 ndcg@20:0.08166835807529864
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 9 / 10
+[INFO] SASRec-SASRec-steam: epoch: 28, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 29
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.84it/s]
+[INFO] SASRec-SASRec-steam: epoch 29 training [time: 10.27s, train loss: 4127.2615]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.55it/s]
+[INFO] SASRec-SASRec-steam: epoch 29 evaluating [time: 1.73s, ndcg@10: 0.069312]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.12063517143308579 hit@20:0.17088007584136514 ndcg@10:0.06931160987868462 ndcg@20:0.08191167910414318
+[INFO] SASRec-SASRec-steam: Saving best model at epoch 29 to /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth
+[INFO] SASRec-SASRec-steam: epoch: 29, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 30
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 54.99it/s]
+[INFO] SASRec-SASRec-steam: epoch 30 training [time: 10.80s, train loss: 4126.2949]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.20it/s]
+[INFO] SASRec-SASRec-steam: epoch 30 evaluating [time: 1.81s, ndcg@10: 0.069138]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.12016116290093222 hit@20:0.17080107441933956 ndcg@10:0.06913755964111837 ndcg@20:0.08184229253298342
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 1 / 10
+[INFO] SASRec-SASRec-steam: epoch: 30, learning rate: 1.5625e-05
+[INFO] SASRec-SASRec-steam: 
+>> epoch 31
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.92it/s]
+[INFO] SASRec-SASRec-steam: epoch 31 training [time: 10.44s, train loss: 4125.7541]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.06it/s]
+[INFO] SASRec-SASRec-steam: epoch 31 evaluating [time: 1.85s, ndcg@10: 0.069001]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11968715436877864 hit@20:0.17095907726339074 ndcg@10:0.06900051548890168 ndcg@20:0.08189424847424034
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 2 / 10
+[INFO] SASRec-SASRec-steam: epoch: 31, learning rate: 7.8125e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 32
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 56.74it/s]
+[INFO] SASRec-SASRec-steam: epoch 32 training [time: 10.47s, train loss: 4125.6925]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.06it/s]
+[INFO] SASRec-SASRec-steam: epoch 32 evaluating [time: 1.85s, ndcg@10: 0.069016]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11992415863485542 hit@20:0.17064307157528835 ndcg@10:0.06901556811973954 ndcg@20:0.08176536274838463
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 3 / 10
+[INFO] SASRec-SASRec-steam: epoch: 32, learning rate: 7.8125e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 33
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:12<00:00, 48.68it/s]
+[INFO] SASRec-SASRec-steam: epoch 33 training [time: 12.20s, train loss: 4125.7624]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.58it/s]
+[INFO] SASRec-SASRec-steam: epoch 33 evaluating [time: 1.98s, ndcg@10: 0.068902]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11945015010270185 hit@20:0.17056407015326275 ndcg@10:0.06890159779505303 ndcg@20:0.08175455621733425
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 4 / 10
+[INFO] SASRec-SASRec-steam: epoch: 33, learning rate: 3.90625e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 34
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.84it/s]
+[INFO] SASRec-SASRec-steam: epoch 34 training [time: 10.27s, train loss: 4125.2088]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.30it/s]
+[INFO] SASRec-SASRec-steam: epoch 34 evaluating [time: 1.79s, ndcg@10: 0.068856]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11937114868067625 hit@20:0.17048506873123717 ndcg@10:0.06885640059488805 ndcg@20:0.08171344494031155
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 5 / 10
+[INFO] SASRec-SASRec-steam: epoch: 34, learning rate: 3.90625e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 35
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:10<00:00, 57.37it/s]
+[INFO] SASRec-SASRec-steam: epoch 35 training [time: 10.35s, train loss: 4124.4158]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  7.11it/s]
+[INFO] SASRec-SASRec-steam: epoch 35 evaluating [time: 1.83s, ndcg@10: 0.068905]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11960815294675305 hit@20:0.17064307157528835 ndcg@10:0.06890465487698758 ndcg@20:0.08173045629666904
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 6 / 10
+[INFO] SASRec-SASRec-steam: epoch: 35, learning rate: 1.953125e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 36
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:11<00:00, 50.15it/s]
+[INFO] SASRec-SASRec-steam: epoch 36 training [time: 11.85s, train loss: 4124.7314]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.86it/s]
+[INFO] SASRec-SASRec-steam: epoch 36 evaluating [time: 1.90s, ndcg@10: 0.068844]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11929214725865066 hit@20:0.17048506873123717 ndcg@10:0.06884352392743062 ndcg@20:0.08171945231388875
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 7 / 10
+[INFO] SASRec-SASRec-steam: epoch: 36, learning rate: 1.953125e-06
+[INFO] SASRec-SASRec-steam: 
+>> epoch 37
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:18<00:00, 32.59it/s]
+[INFO] SASRec-SASRec-steam: epoch 37 training [time: 18.23s, train loss: 4124.4209]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:01<00:00,  6.75it/s]
+[INFO] SASRec-SASRec-steam: epoch 37 evaluating [time: 1.93s, ndcg@10: 0.068930]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11945015010270185 hit@20:0.17040606730921157 ndcg@10:0.0689296956787565 ndcg@20:0.08174373419480438
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 8 / 10
+[INFO] SASRec-SASRec-steam: epoch: 37, learning rate: 9.765625e-07
+[INFO] SASRec-SASRec-steam: 
+>> epoch 38
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:17<00:00, 33.35it/s]
+[INFO] SASRec-SASRec-steam: epoch 38 training [time: 17.81s, train loss: 4123.7744]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:02<00:00,  6.29it/s]
+[INFO] SASRec-SASRec-steam: epoch 38 evaluating [time: 2.07s, ndcg@10: 0.068896]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11937114868067625 hit@20:0.17056407015326275 ndcg@10:0.06889586672897788 ndcg@20:0.08176863017808271
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 9 / 10
+[INFO] SASRec-SASRec-steam: epoch: 38, learning rate: 9.765625e-07
+[INFO] SASRec-SASRec-steam: 
+>> epoch 39
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:18<00:00, 32.39it/s]
+[INFO] SASRec-SASRec-steam: epoch 39 training [time: 18.34s, train loss: 4123.7501]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:02<00:00,  5.93it/s]
+[INFO] SASRec-SASRec-steam: epoch 39 evaluating [time: 2.20s, ndcg@10: 0.068841]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11913414441459946 hit@20:0.17072207299731396 ndcg@10:0.06884096139139362 ndcg@20:0.08181722263703009
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 10 / 10
+[INFO] SASRec-SASRec-steam: epoch: 39, learning rate: 4.8828125e-07
+[INFO] SASRec-SASRec-steam: 
+>> epoch 40
+Train: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 594/594 [00:17<00:00, 33.70it/s]
+[INFO] SASRec-SASRec-steam: epoch 40 training [time: 17.63s, train loss: 4125.0735]
+[INFO] SASRec-SASRec-steam: one_vs_all
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 13/13 [00:02<00:00,  6.50it/s]
+[INFO] SASRec-SASRec-steam: epoch 40 evaluating [time: 2.01s, ndcg@10: 0.068868]
+[INFO] SASRec-SASRec-steam: complete scores on valid set: 
+hit@10:0.11921314583662505 hit@20:0.17072207299731396 ndcg@10:0.06886847137308526 ndcg@20:0.08182333625235952
+[INFO] SASRec-SASRec-steam: No better score in the epoch. Patience: 11 / 10
+[INFO] SASRec-SASRec-steam: Finished training, best eval result in epoch 29
+[INFO] SASRec-SASRec-steam: Constructing dataset of task type: test
+[DEBUG] SASRec-SASRec-steam: loading test at 17/03/2024 01:49:35
+[DEBUG] SASRec-SASRec-steam: Finished loading test at 17/03/2024 01:49:35
+[INFO] SASRec-SASRec-steam: Finished initializing <class 'unirec.data.dataset.seqrecdataset.SeqRecDataset'>
+[INFO] SASRec-SASRec-steam: one_vs_all
+[INFO] SASRec-SASRec-steam: Loading model from /home/lws/projects/unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth. The best epoch was 29
+Evaluate: 100%|¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€¨€| 127/127 [00:10<00:00, 12.28it/s]
+[INFO] SASRec-SASRec-steam: best valid : {'hit@10': 0.12063517143308579, 'hit@20': 0.17088007584136514, 'ndcg@10': 0.06931160987868462, 'ndcg@20': 0.08191167910414318}
+[INFO] SASRec-SASRec-steam: test result: {'hit@10': 0.11581608468952441, 'hit@20': 0.16803602464844367, 'ndcg@10': 0.06789545538225844, 'ndcg@20': 0.08104112482626186}
+[INFO] SASRec-SASRec-steam: Saving test result to /home/lws/projects/unirec/output/steam/SASRec/train/result_SASRec-SASRec-steam.2024-03-17_014033.93.tsv ...
+[INFO] SASRec-SASRec-steam: Mission complete. Time elapsed: 9.25 minutes.
+Logger close successfully.

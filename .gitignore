@@ -8,3 +8,6 @@ teacher_model/dataset/sub_movie/*
 teacher_model/log/*
 teacher_model/saved/*
 
+unirec/data/*
+
+teacher_model
