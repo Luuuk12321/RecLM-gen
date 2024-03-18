@@ -64,14 +64,29 @@ Dataset files `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl`,  `map.pk
 
 `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl` is used to train SASRec model in UniRec lib. (from the same data source)
 
-### 1.2. SASRec Server start
-The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively. 
+### 1.2. SASRec model training
+The params is dataset name(`sub_movie`).
+```shell
+cd unirec/
+./examples/training/train_seq_model.sh sub_movie
+```
 
-For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
+### 1.3. SASRec Server start
+Change the `model_path` in `unirec/unirec/main/asy_server.py` to indicate the path of file.
+```python
+model_path = {
+    'sub_movie': "output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth",
+    'steam': "output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth",
+}
+```
+
+The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
 ```shell
 cd unirec/
 ./examples/serving/serve_seq_model.sh sub_movie 12621 0 1
 ```
+For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
+
 
 ## 2. SFT stage
 
