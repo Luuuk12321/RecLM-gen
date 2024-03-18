@@ -7,7 +7,6 @@ numpy==1.26.4
 openai==1.12.0
 peft==0.5.0
 python_Levenshtein==0.25.0
-recbole==1.2.0
 Requests==2.31.0
 sanic==23.12.1
 torch==2.1.2

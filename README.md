@@ -10,7 +10,7 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 
 `ranking_candidate.pickle` is needed, if you need to test reranking task.
 
-**Total dataset is available on this [link](https://drive.google.com/file/d/1Eb9F1ntmBkLfhfQDUnqc4Hx5lJb8DGzW/view?usp=drive_link).**
+**Total dataset is available on this [link](https://drive.google.com/file/d/1cfw-KSqEwGF0eB_hm1PUWhUTdloT04Le/view?usp=drive_link).**
 
 ### category.pickle
 `category.pickle` is a dict, the keys are all categories, and value is the item list belonging specific category.
@@ -55,6 +55,7 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 
 
 ## 1. SASRec Server
+We use [UniRec](https://github.com/microsoft/UniRec) lib to implement SASRec teacher model and deploy serve.
 
 ### 1.1. SASRec dataset and model
 Model param is saved in `unirec/output/`.
@@ -64,8 +65,7 @@ Dataset files `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl`,  `map.pk
 `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl` is used to train SASRec model in UniRec lib. (from the same data source)
 
 ### 1.2. SASRec Server start
-We use [UniRec](https://github.com/microsoft/UniRec) to implement and deploy the teacher model.
-The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
+The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively. 
 
 For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
 ```shell
