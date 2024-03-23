@@ -1,10 +1,10 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES=0,1 accelerate launch --num_processes 2 --gpu_ids all main.py \
+CUDA_VISIBLE_DEVICES=4,5 accelerate launch --num_processes 2 --gpu_ids all main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
-  --backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch37/ \
+  --backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch27/ \
   --item_index title64_t \
   --batch_size 8 \
   --gradient_accumulation_steps 4 \
@@ -36,4 +36,5 @@ CUDA_VISIBLE_DEVICES=0,1 accelerate launch --num_processes 2 --gpu_ids all main.
   --num_episodes 2 \
   --reward_alpha 0.5 \
   --fine_grain_reward \
+  --teacher_port 12621 \
   --distributed

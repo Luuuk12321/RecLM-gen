@@ -1,25 +1,15 @@
 import pickle
 import sys
 import asyncio
-import itertools
 import functools
-from logging import getLogger
-
-from recbole.config import Config
-from recbole.data import create_dataset, data_preparation
-from recbole.utils import init_seed, init_logger, get_model
 from sanic import Sanic
-from sanic.response import json, text
 from sanic.log import logger
-from sanic.exceptions import ServerError
 
 import sanic
-import threading
 import torch
-import multiprocessing as mp
 from sanic.worker.manager import WorkerManager
-
 from unirec.utils import argument_parser, general
+
 
 WorkerManager.THRESHOLD = 600
 
@@ -44,8 +34,8 @@ class HandlingError(Exception):
 
 
 model_path = {
-    'sub_movie': "output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth",
-    'steam': "output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth",
+    'sub_movie': "unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth",
+    'steam': "unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth",
 }
 print(' '.join(sys.argv))
 config = argument_parser.parse_arguments()
@@ -53,8 +43,8 @@ config['device'] = torch.device('cuda:0')
 dataset = config['dataset']
 config['dataset_path'] = f'data/{dataset}'
 
-category2item = load_pickle(f'{config["dataset_path"]}/category.pickle')
-map_dict = load_pickle(f'{config["dataset_path"]}/map.pkl')
+category2item = load_pickle(f'unirec/{config["dataset_path"]}/category.pickle')
+map_dict = load_pickle(f'unirec/{config["dataset_path"]}/map.pkl')
 
 
 def process_output(batched_data):
@@ -139,6 +129,8 @@ class ModelRunner:
         self.needs_processing = None
         self.needs_processing_timer = None
 
+        self.all_item_id = torch.arange(len(map_dict['id2item']), device=config['device'], dtype=torch.int64)
+
     def schedule_processing_if_needed(self):
         if len(self.queue) >= MAX_BATCH_SIZE:
             logger.debug("next batch ready when processing a batch")
@@ -160,7 +152,7 @@ class ModelRunner:
         return batched_data["top_k"]
 
     def run_model(self, batch_data):
-        _, scores, _, _ = self.model.forward(**batch_data)
+        _, scores, _, _ = self.model.forward(**batch_data, item_id=self.all_item_id)
         # return self.model.forward_user_emb(batch_data).softmax(dim=1)
         return scores.softmax(dim=1)
 

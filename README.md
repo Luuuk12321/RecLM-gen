@@ -57,33 +57,50 @@ Raw dataset should have 3 files in data_path at least: `category.pickle`, `meta.
 ## 1. SASRec Server
 We use [UniRec](https://github.com/microsoft/UniRec) lib to implement SASRec teacher model and deploy serve.
 
-### 1.1. SASRec dataset and model
+### 1.1. Install UniRec
+```shell
+git clone https://github.com/microsoft/UniRec.git
+pip install --user --upgrade setuptools wheel twine
+```
+Change the dependency of unirec in `unirec/setup.py`
+```
+install_requires = [
+    "torch>=1.10.0,<=1.13.1" -> "torch>=1.10.0,<=2.1.2",
+    "..."
+]
+```
+
+```shell
+cd UniRec
+python setup.py sdist bdist_wheel
+pip install dist/unirec-*.whl 
+```
+
+### 1.2. SASRec dataset and model
 Model param is saved in `unirec/output/`.
 
 Dataset files `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl`,  `map.pkl`, `category.pickle(as same as raw dataset)` in `unirec/data/sub_movie/`.
 
 `train.pkl`, `valid.pkl`, `test.pkl`, `user_history.pkl` is used to train SASRec model in UniRec lib. (from the same data source)
 
-### 1.2. SASRec model training
+### 1.3. SASRec model training
 The params is dataset name(`sub_movie`).
 ```shell
-cd unirec/
-./examples/training/train_seq_model.sh sub_movie
+./scripts/unirec_train.sh sub_movie
 ```
 
-### 1.3. SASRec Server start
-Change the `model_path` in `unirec/unirec/main/asy_server.py` to indicate the path of file.
+### 1.4. SASRec Server start
+Change the `model_path` in `unirec/asyc_server.py` to indicate the path of file.
 ```python
 model_path = {
-    'sub_movie': "output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth",
-    'steam': "output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth",
+    'sub_movie': "unirec/output/sub_movie/SASRec/train/checkpoint_2024-03-17_014803_35/SASRec-SASRec-sub_movie.pth",
+    'steam': "unirec/output/steam/SASRec/train/checkpoint_2024-03-17_014033_93/SASRec-SASRec-steam.pth",
 }
 ```
 
-The params is dataset name(`sub_movie`), serve port(`12621`), gpu_id(`0`), workers number(`1`) respectively.
+The params is dataset name(`sub_movie`), serve port(`12621`), workers number(`1`) respectively.
 ```shell
-cd unirec/
-./examples/serving/serve_seq_model.sh sub_movie 12621 0 1
+./scripts/unirec_serve.sh sub_movie 12621 1
 ```
 For dataset preparing, the workers number should be bigger for lifting speed, such as `4`.
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all main.py \
+CUDA_VISIBLE_DEVICES=0,1,2,4 accelerate launch --num_processes 4 --gpu_ids all main.py \
   --seed 0 \
   --data_path data/dataset/sub_movie/ \
   --output snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/ \
@@ -26,4 +26,5 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 accelerate launch --num_processes 4 --gpu_ids all m
   --FA2 \
   --llama2_chat_template \
   --idx \
+  --teacher_port 12621 \
   --distributed

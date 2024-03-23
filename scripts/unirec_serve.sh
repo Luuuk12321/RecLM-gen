@@ -22,8 +22,8 @@ DATA_TYPE='SeqRecDataset'  # BaseDataset SeqRecDataset
 ### serve ###################################
 export PYTHONPATH=$PWD
 
-CUDA_VISIBLE_DEVICES=$3 python unirec/main/asy_server.py \
-    --config_dir="unirec/config" \
+CUDA_VISIBLE_DEVICES=0 python unirec/asyc_server.py \
+    --config_dir="unirec/unirec/config" \
     --model=$MODEL_NAME \
     --dataloader=$DATA_TYPE \
     --dataset=$DATASET_NAME \
@@ -35,7 +35,7 @@ CUDA_VISIBLE_DEVICES=$3 python unirec/main/asy_server.py \
     --has_user_bias=0 \
     --has_item_bias=0 \
     --history_mask_mode='autoregressive' \
-    --num_workers=$4 \
+    --num_workers=$3 \
     --verbose=$verbose \
     --use_wandb=0 \
     --exp_name=sub_movie_server \

@@ -6,22 +6,20 @@
 ###############################################################################################
 ### Please modify the following variables according to your device and mission requirements ###
 ###############################################################################################
-LOCAL_ROOT="$HOME/projects/unirec"  # path to UniRec
+UNIREC_ROOT="./unirec"  # path to UniRec
 ###############################################################################################
 
 
 # default parameters for local run
-MY_DIR=$LOCAL_ROOT
-ALL_DATA_ROOT="$LOCAL_ROOT/data"
-OUTPUT_ROOT="$LOCAL_ROOT/output" 
+ALL_DATA_ROOT="$UNIREC_ROOT/data"
+OUTPUT_ROOT="$UNIREC_ROOT/output"
 MODEL_NAME='SASRec' # [ MF, AvgHist, AttHist, SVDPlusPlus, GRU, SASRec, ConvFormer, FASTConvFormer]
-loss_type='bce' # [bce, bpr, softmax]
-DATASET_NAME="ml-100k"
+loss_type='fullsoftmax' # [bce, bpr, softmax]
+DATASET_NAME=$1
 max_seq_len=10
 verbose=2
 
-cd $MY_DIR
-export PYTHONPATH=$PWD 
+export PYTHONPATH=$PWD
 
 # overall config
 DATA_TYPE='SeqRecDataset'  # BaseDataset SeqRecDataset
@@ -37,7 +35,7 @@ ALL_RESULTS_ROOT="$OUTPUT_ROOT/$DATASET_NAME/$MODEL_NAME"
 mkdir -p $ALL_RESULTS_ROOT
 ### train ###################################
 
-python unirec/main/main.py \
+CUDA_VISIBLE_DEVICES=0 python -m unirec.main.main \
     --config_dir="unirec/config" \
     --model=$MODEL_NAME \
     --dataloader=$DATA_TYPE \
@@ -46,8 +44,8 @@ python unirec/main/main.py \
     --output_path=$ALL_RESULTS_ROOT"/train" \
     --learning_rate=$learning_rate \
     --dropout_prob=0.0 \
-    --embedding_size=64 \
-    --hidden_size=64 \
+    --embedding_size=128 \
+    --hidden_size=256 \
     --use_pre_item_emb=0 \
     --loss_type=$loss_type \
     --max_seq_len=$max_seq_len \
@@ -55,13 +53,13 @@ python unirec/main/main.py \
     --has_item_bias=0 \
     --epochs=100  \
     --early_stop=10 \
-    --batch_size=512 \
-    --n_sample_neg_train=5 \
+    --batch_size=1024 \
+    --n_sample_neg_train=0 \
     --neg_by_pop_alpha=1.0 \
     --valid_protocol=$test_protocol \
     --test_protocol=$test_protocol \
     --grad_clip_value=-1 \
-    --weight_decay=1e-6 \
+    --weight_decay=0.0 \
     --history_mask_mode='autoregressive' \
     --user_history_filename="user_history" \
     --user_history_file_format="user-item_seq" \
@@ -71,5 +69,8 @@ python unirec/main/main.py \
     --num_workers_test=0 \
     --verbose=$verbose \
     --exp_name=$exp_name \
-    --use_wandb=0
+    --use_wandb=0 \
+    --shuffle_train 1 \
+    --scheduler_factor 0.5 \
+    --gpu_id -1
 # done

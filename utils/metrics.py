@@ -124,7 +124,7 @@ class Metrics:
         return temp
 
     def print(self, temp=None):
-        if not self.accelerator.is_main_process:
+        if self.accelerator and not self.accelerator.is_main_process:
             return
         if temp is None:
             temp = copy.deepcopy(self.metrics_dict)
