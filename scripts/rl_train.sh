@@ -7,7 +7,7 @@ CUDA_VISIBLE_DEVICES=4,5 accelerate launch --num_processes 2 --gpu_ids all main.
   --backbone snap/ICR_SubMovie_Title64T_0_Llama7bChat_LCT_E40_CCR2_SCG2-0.5_IDX/SFT_Epoch27/ \
   --item_index title64_t \
   --batch_size 8 \
-  --gradient_accumulation_steps 4 \
+  --gradient_accumulation_steps 2 \
   --topk 10 \
   --clip_grad_norm 0.5 \
   --epoch 4 \
