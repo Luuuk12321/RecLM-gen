@@ -164,9 +164,9 @@ class SFTTrainer(BaseTrainer):
             bs = len(batch['task'])
             input_ids_length = batch['input_data']['input_ids'].shape[1]
             if epoch == 0:
-                output_ids = self.actor_critic.base_model.greedy_search(**batch['input_data'], stopping_criteria=stopping_criteria)
+                output_ids = self.actor_critic.base_model.greedy_search(**batch['input_data'], stopping_criteria=stopping_criteria, eos_token_id=self.tokenizer.eos_token_id, pad_token_id=self.tokenizer.pad_token_id)
             else:
-                output_ids = self.actor_critic.actor_model.greedy_search(**batch['input_data'], stopping_criteria=stopping_criteria)
+                output_ids = self.actor_critic.actor_model.greedy_search(**batch['input_data'], stopping_criteria=stopping_criteria, eos_token_id=self.tokenizer.eos_token_id, pad_token_id=self.tokenizer.pad_token_id)
 
             # process output
             output_text = self.tokenizer.batch_decode(output_ids[:, input_ids_length:], skip_special_tokens=True)

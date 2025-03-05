@@ -14,12 +14,12 @@ fi
 
 tasks=(
   "SFTTestSeqRec"
-  "SFT+TestPersonalControlRec"
-  "SFT-TestPersonalControlRec"
-  "SFTTestPersonalCategoryRateLP1_20"
-  "SFTTestPersonalCategoryRateEP_30"
-  "SFTTestPersonalCategoryRateMP_30"
-  "SFTTestItemCount"
+#  "SFT+TestPersonalControlRec"
+#  "SFT-TestPersonalControlRec"
+#  "SFTTestPersonalCategoryRateLP1_20"
+#  "SFTTestPersonalCategoryRateEP_30"
+#  "SFTTestPersonalCategoryRateMP_30"
+#  "SFTTestItemCount"
 )
 for t in "${tasks[@]}";
 do

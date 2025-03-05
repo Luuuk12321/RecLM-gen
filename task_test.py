@@ -5,6 +5,7 @@ import re
 from concurrent.futures import ProcessPoolExecutor
 from concurrent.futures import ThreadPoolExecutor
 import requests
+from Levenshtein import distance
 from tqdm import tqdm
 from sft.dataset import Test_task_group_mapping, SFTDataset
 from param import Config
@@ -12,6 +13,7 @@ from utils.metrics import Metrics
 from utils.tools import match_idx, rm_idx, vague_map, GPT, load_pickle, save_pickle
 
 headers = {"User-Agent": "Test Client"}
+wrongtime = 0
 
 
 def quary_vllm(input_text, args):
@@ -88,8 +90,8 @@ def quary_api(d, args):
             # if args.model_name in ['snap/gpt-3.5-turbo-1106/']:
                 d[f'{args.model_name}_output'] = quary_openai(input_text, args)
             else:
-                d[f'{args.model_name}_output'] = quary_vllm_openai(input_text, args)
-                # d[f'{args.model_name}_output'] = quary_vllm(input_text, args)
+                # d[f'{args.model_name}_output'] = quary_vllm_openai(input_text, args)
+                d[f'{args.model_name}_output'] = quary_vllm(input_text, args)
 
         assert f'{args.model_name}_output' in d, f'no {args.model_name}_output'
         wrongtime = 0
@@ -104,6 +106,15 @@ def quary_api(d, args):
 
 
 if __name__ == "__main__":
+    def vague_mapping(ts):
+        for idx, __ in enumerate(ts):
+            if __ in test_data.title2item:
+                continue
+            for ___ in test_data.title2item:
+                if distance(__, ___) <= 3:
+                    ts[idx] = ___
+                    break
+
     def process_api_output(d):
         if f'{args.model_name}_output' not in d:
             return d
@@ -113,27 +124,45 @@ if __name__ == "__main__":
         if f'{args.SFT_test_task}_output_title_list' in d:
             return d
         raw_output = d[f'{args.model_name}_output']
-        if raw_output[0] == raw_output[-1] == '"' or raw_output[0] == raw_output[-1] == "'":
-            raw_output = raw_output[1:-1]
 
-        ts = raw_output.split('\n')
-        ts = [rm_idx(_).strip().split('\n')[0].strip() for _ in ts if match_idx(_)]
-        if args.SFT_test_task != 'SFTTestSeqRec':
-            ts = [re.sub(r' *[(,\[](.*)[),\]]$', '', _) for _ in ts]
+        ts = [_.strip() for _ in raw_output.strip().split('\n')]
+        ts = [rm_idx(_) if args.idx else _ for _ in ts]
 
-        ts = [t[1:-1] if t[0] == t[-1] == "'" or t[0] == t[-1] == "\"" else t for t in ts if t != '']
-        ts = [t.strip() for t in ts]
-        ts = ts[:d['input_field_data']['item_count']]
-
-        ts = vague_map(ts, test_data.title2item)
+        vague_mapping(ts)
         d[f'{args.SFT_test_task}_output_title_list'] = ts
 
         return d
 
+    # def process_api_output(d):
+    #     if f'{args.model_name}_output' not in d:
+    #         return d
+    #     if d[f'{args.model_name}_output'] == "":
+    #         d[f'{args.SFT_test_task}_output_title_list'] = []
+    #         return d
+    #     if f'{args.SFT_test_task}_output_title_list' in d:
+    #         return d
+    #     raw_output = d[f'{args.model_name}_output']
+    #     if raw_output[0] == raw_output[-1] == '"' or raw_output[0] == raw_output[-1] == "'":
+    #         raw_output = raw_output[1:-1]
+    #
+    #     ts = raw_output.split('\n')
+    #     ts = [rm_idx(_).strip().split('\n')[0].strip() for _ in ts if match_idx(_)]
+    #     if args.SFT_test_task != 'SFTTestSeqRec':
+    #         ts = [re.sub(r' *[(,\[](.*)[),\]]$', '', _) for _ in ts]
+    #
+    #     ts = [t[1:-1] if t[0] == t[-1] == "'" or t[0] == t[-1] == "\"" else t for t in ts if t != '']
+    #     ts = [t.strip() for t in ts]
+    #     ts = ts[:d['input_field_data']['item_count']]
+    #
+    #     ts = vague_map(ts, test_data.title2item)
+    #     d[f'{args.SFT_test_task}_output_title_list'] = ts
+    #
+    #     return d
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--data_path", type=str, default='data/dataset/sub_movie/', help="processed_data path")
     parser.add_argument('--SFT_test_task', type=str, default='', help='in {SFTTestSeqRec, SFTTestRanking, SFT+TestPersonalControlRec, SFT-TestPersonalControlRec, SFTTestPersonalCategoryRate_xx%, SFTTestItemCount}')
-    parser.add_argument("--num_process", type=int, default=80)
+    parser.add_argument("--num_process", type=int, default=128)
     parser.add_argument("--model_name", type=str, default='Llama-2-7b-hf-chat', help="openai model")
     parser.add_argument("--try_num", type=int, default=2, help="The number of attempts to call the API")
     parser.add_argument("--max_item_length", type=int, default=10)
@@ -190,7 +219,7 @@ if __name__ == "__main__":
         data['SFTTestSeqRec_Result'] = load_pickle(TestSeqRec_Result_file)
     test_data = SFTDataset(args, TestTaskTemplate, TestTaskNum, data, None, 'test')
     metrics_dict = Metrics([args.SFT_test_task], args.topk, test_data.category2item, test_data.title2item)
-    result_file = f'{args.output_path}{args.SFT_test_task}_Top{args.topk}_Result{"_Sample" if args.sample else ""}.pickle'
+    result_file = f'{args.output_path}{args.SFT_test_task}_Top{10}_Result{"_Sample" if args.sample else ""}.pickle'
 
     test_data_list = load_pickle(result_file)
     _test_data_list = [_ for _ in test_data]
@@ -212,19 +241,10 @@ if __name__ == "__main__":
 
     if len(remain_test_data_list) > 0:
         save_pickle(test_data_list, result_file)
-    if args.model_name not in ['snap/Llama-2-7b-hf-chat/', 'snap/gpt-3.5-turbo-1106/']:
-        for step_i, example in tqdm(enumerate(test_data_list)):
-            if f'{args.model_name}_output' not in example or (f'{args.SFT_test_task}_output_title_list' in example and args.reprocess):
-                continue
-            output_title = example[f'{args.model_name}_output']
-            output_title_list = [_.strip() for _ in output_title.strip().split('\n')]
-            output_title_list = [rm_idx(_) if args.idx else _ for _ in output_title_list]
-            output_title_list = vague_map(output_title_list, test_data.title2item)
-            example[f'{args.SFT_test_task}_output_title_list'] = output_title_list
-    else:
-        with ProcessPoolExecutor(max_workers=args.num_process) as executor:
-            results = list(tqdm(executor.map(process_api_output, test_data_list), total=len(test_data_list)))
-        test_data_list = results
+
+    with ProcessPoolExecutor(max_workers=args.num_process) as executor:
+        results = list(tqdm(executor.map(process_api_output, test_data_list), total=len(test_data_list)))
+    test_data_list = results
 
     for step_i, example in tqdm(enumerate(test_data_list)):
         if f'{args.SFT_test_task}_output_title_list' not in example or len(example[f'{args.SFT_test_task}_output_title_list']) == 0:

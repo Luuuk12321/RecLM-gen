@@ -312,8 +312,8 @@ class RLDataset(Dataset):
                 item_count = self.args.topk + 1 + idx % 5
                 input_field_data.update({'item_count': item_count})
 
-        input_text = template_selected.get_input_text(input_field_data, llama2_chat_template=self.args.llama2_chat_template).strip()
-        output_text = template_selected.get_output_text(output_field_data).strip()
+        input_text = template_selected.get_input_text(input_field_data, llama2_chat_template=self.args.llama2_chat_template)
+        output_text = template_selected.get_output_text(output_field_data)
         out_dict = {
             'task': task,
             'input_text': input_text,

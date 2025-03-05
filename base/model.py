@@ -174,9 +174,14 @@ class BaseModel(nn.Module):       # name
 
     def create_tokenizer(self):
         tokenizer = AutoTokenizer.from_pretrained(self.args.backbone)
-        # tokenizer.add_tokens(['\n'] + [f'<{i+1}>' for i in range(20)])
-        tokenizer.pad_token = tokenizer.unk_token
-        tokenizer.pad_token_id = tokenizer.unk_token_id
+        # tokenizer.pad_token = tokenizer.unk_token
+        # tokenizer.pad_token_id = tokenizer.unk_token_id
+        tokenizer.pad_token = '<|reserved_special_token_250|>'
+        tokenizer.pad_token_id = 128255
+        eot_token = "<|eot_id|>"
+        eot_token_id = tokenizer.convert_tokens_to_ids(eot_token)
+        tokenizer.eos_token = eot_token
+        tokenizer.eos_token_id = eot_token_id
         self.model_config.pad_token_id = tokenizer.pad_token_id
         return tokenizer
 

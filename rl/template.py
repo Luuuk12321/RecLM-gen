@@ -1,4 +1,4 @@
-from fastchat.model import get_conversation_template
+from transformers import AutoTokenizer
 
 
 class RLTemplate:
@@ -20,12 +20,7 @@ class RLTemplate:
         self.input_fields = input_fields
         self.output_fields = output_fields
 
-        self.conv = get_conversation_template("llama-2")
-        self.conv.set_system_message(self.sys)
-        self.conv.append_message(self.conv.roles[0], self.first_turn[0])
-        self.conv.append_message(self.conv.roles[1], self.first_turn[1])
-        self.conv.append_message(self.conv.roles[0], '')
-        self.conv.append_message(self.conv.roles[1], None)
+        self.tokenizer = AutoTokenizer.from_pretrained('/home/lws/models/Llama-3-8B-instruct/')
 
     def get_input_text(self, input_args: dict, llama2_chat_template=False):
         for _ in self.input_fields:
@@ -34,8 +29,11 @@ class RLTemplate:
         if not llama2_chat_template:
             input_text = f'{self.sys}{self.first_turn[0]}{instruction}'
         else:
-            self.conv.messages[-2][1] = instruction
-            input_text = self.conv.get_prompt()
+            messages = [{'role': 'system', 'content': self.sys},
+                        {'role': 'user', 'content': self.first_turn[0]},
+                        {'role': 'assistant', 'content': self.first_turn[1]},
+                        {'role': 'user', 'content': instruction}]
+            input_text = self.tokenizer.apply_chat_template(messages, tokenize=False)
         return input_text
 
     def get_output_text(self, output_args: dict):

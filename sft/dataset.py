@@ -25,11 +25,6 @@ class SFTDataset(Dataset):
         self.sequential = data['sequential']
         self.share_chat_gpt = data['share_chat_gpt']
         self.ranking_candidate = data['ranking_candidate']
-        if self.args.llama2_chat_template:
-            self.chat_gpt_conv = get_conversation_template("llama-2")
-            self.chat_gpt_conv.set_system_message("You are a helpful, respectful and honest assistant.")
-            self.chat_gpt_conv.append_message(self.chat_gpt_conv.roles[0], '')
-            self.chat_gpt_conv.append_message(self.chat_gpt_conv.roles[1], '')
         if 'SFTTestSeqRec_Result' in data:
             self.SFTTestSeqRec_Result = {u: data['SFTTestSeqRec_Result'][idx].get('SFTTestSeqRec_output_title_list') or [] for idx, u in enumerate(self.sequential) if idx < len(data['SFTTestSeqRec_Result'])}
         if 'SFTTestSeqRec_Candidate' in data:
@@ -431,15 +426,14 @@ class SFTDataset(Dataset):
                     break
             chat_start_idx_selected = random.choice(chat_start_idxes)
             if self.args.llama2_chat_template:
-                chat_gpt_conv = get_conversation_template("llama-2")
-                chat_gpt_conv.set_system_message("You are a helpful, respectful and honest assistant.")
-                input_data = scg_data[chat_start_idx_selected:chat_end_idx+1]+[{'from': 'gpt', 'value': None}]
-                for idx in range(0, len(input_data), 2):
-                    assert input_data[idx]['from'] == 'human'
-                    chat_gpt_conv.append_message(chat_gpt_conv.roles[0], input_data[idx]['value'])
-                    assert input_data[idx+1]['from'] == 'gpt'
-                    chat_gpt_conv.append_message(chat_gpt_conv.roles[1], input_data[idx+1]['value'])
-                input_text = chat_gpt_conv.get_prompt()
+                messages = [{'role': 'system', 'content': "You are a helpful, respectful and honest assistant."}]
+                input_data = scg_data[chat_start_idx_selected:chat_end_idx+1]
+                for idx in range(0, len(input_data), 1):
+                    if input_data[idx]['from'] == 'human':
+                        messages.append({'role': 'user', 'content': input_data[idx]['value']})
+                    else:
+                        messages.append({'role': 'assistant', 'content': input_data[idx]['value']})
+                input_text = self.tokenizer.apply_chat_template(messages, tokenize=False)
                 output_text = scg_data[chat_end_idx+1]['value']
             else:
                 raise NotImplementedError
@@ -453,8 +447,8 @@ class SFTDataset(Dataset):
         else:
             raise NotImplementedError
 
-        input_text = template_selected.get_input_text(input_field_data, llama2_chat_template=self.args.llama2_chat_template).strip()
-        output_text = template_selected.get_output_text(output_field_data).strip()
+        input_text = template_selected.get_input_text(input_field_data, llama2_chat_template=self.args.llama2_chat_template)
+        output_text = template_selected.get_output_text(output_field_data)
         out_dict = {
             'input_text': input_text,
             'output_text': output_text,

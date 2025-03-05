@@ -1,11 +1,12 @@
 #!/bin/bash
 
-OUTPUT_PATH="snap/ICR_Toys_TitleT_0_LCT_E40_gpt0.1_IDX/"
+DATASET='toys'
+OUTPUT_PATH='snap/CtrlRec_'$DATASET'_TitleT_0_LCT_E40_gpt0.1_IDX/'
 mkdir -p "$OUTPUT_PATH"
 
-CUDA_VISIBLE_DEVICES=4,5 nohup accelerate launch --num_processes 2 --gpu_ids all --main_process_port 13331 main.py \
+CUDA_VISIBLE_DEVICES=0,1 nohup accelerate launch --num_processes 2 --gpu_ids all --main_process_port 13328 main.py \
   --seed 0 \
-  --data_path data/dataset/toys/ \
+  --data_path data/dataset/$DATASET/ \
   --output $OUTPUT_PATH \
   --backbone /home/lws/models/Llama-3-8B-instruct/ \
   --item_index title_t \
@@ -21,8 +22,8 @@ CUDA_VISIBLE_DEVICES=4,5 nohup accelerate launch --num_processes 2 --gpu_ids all
   --SFT_actor_lora_a 8 \
   --warmup_ratio 0.0125 \
   --val_batch_size 16 \
-  --SFT_train_tasks SFTSeqRec,SFTPersonalControlRec,SFTControlRec_re,SFTPersonalCategoryRate,ShareChatGPT \
-  --SFT_val_tasks SFTTestSeqRec,SFT+TestPersonalControlRec,SFT-TestPersonalControlRec,SFTTestPersonalCategoryRateEP_50 \
+  --SFT_train_tasks SFTSeqRec,SFTControlRec_re,ShareChatGPT \
+  --SFT_val_tasks SFTTestSeqRec \
   --backup_ip 0.0.0.0 \
   --val_epoch 0 \
   --share_chat_gpt_ratio 0.1 \
